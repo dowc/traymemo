@@ -27,6 +27,7 @@
 #include <QtDeclarative/QDeclarativeView>
 #include <QxtGlobalShortcut>
 #include <QShortcut>
+#include <QFileInfo>
 
 TrayMemoWindow::TrayMemoWindow()
     :proposedFileNameNumbers(0)
@@ -90,8 +91,9 @@ void TrayMemoWindow::createNewTab(QString fileName)
 }
 
 QString TrayMemoWindow::stripPathFromFileName(QString fileName)
-{
-    return fileName.remove(0, fileName.lastIndexOf("/"));
+{    
+    QFileInfo info(fileName);
+    return info.fileName();
 }
 
 void TrayMemoWindow::closeTab()
