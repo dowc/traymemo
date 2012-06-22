@@ -28,6 +28,8 @@
 #include <QxtGlobalShortcut>
 #include <QShortcut>
 #include <QFileInfo>
+#include <stdio.h>
+#include <QIODevice>
 
 TrayMemoWindow::TrayMemoWindow()
     :proposedFileNameNumbers(0)
@@ -41,8 +43,16 @@ TrayMemoWindow::TrayMemoWindow()
 
     shortCutShowHide = new QxtGlobalShortcut(QKeySequence("Ctrl+E"), this);
     shortCutCreateNew = new QShortcut(QKeySequence("Ctrl+N"), this);
+    shortCutSaveText = new QShortcut(QKeySequence("Ctrl+S"), this);
+    shortCutOpenExisting = new QShortcut(QKeySequence("Ctrl+O"), this);
+    shortCutOpenCloseApp = new QShortcut(QKeySequence("Ctrl+Q"), this);
+    shortCutCloseCurrentTab = new QShortcut(QKeySequence("Ctrl+W"), this);
     QObject::connect(shortCutShowHide, SIGNAL(activated()), this, SLOT(showHideWidget()));
     QObject::connect(shortCutCreateNew, SIGNAL(activated()), this, SLOT(openFileSaveDialog()));
+    QObject::connect(shortCutSaveText, SIGNAL(activated()), this, SLOT(saveTextToFile()));
+    QObject::connect(shortCutOpenExisting, SIGNAL(activated()), this, SLOT(openFileOpenDialog()));
+    QObject::connect(shortCutCloseCurrentTab, SIGNAL(activated()), this, SLOT(closeCurrentTab()));
+    QObject::connect(shortCutOpenCloseApp, SIGNAL(activated()), QCoreApplication::instance(), SLOT(quit()));
 
     QObject::connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
@@ -68,26 +78,68 @@ TrayMemoWindow::TrayMemoWindow()
 
     setWindowTitle(tr("traymemo"));
     //createNewTab("test.txt");
-    openFileSaveDialog();
+    //openFileSaveDialog();
+    currentFile = new QFile(this);
+    //currentTextEdit = new QTextEdit(this);
 }
 
 void TrayMemoWindow::openFileSaveDialog()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "todo.txt", tr("Text     files (*.txt,*.config)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "todo.txt", tr("Text files (*.txt,*.config)"));
 
     createNewTab(fileName);
 }
 
+void TrayMemoWindow::openFileOpenDialog()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "todo.txt", tr("Text files (*.txt,*.config)"));
+
+    createNewTab(fileName);
+}
+
+void TrayMemoWindow::saveTextToFile()
+{
+    QTextStream os(currentFile);
+    os << currentTextEdit->toPlainText();
+}
+
+void TrayMemoWindow::readTextFromFile()
+{
+    QTextStream is(currentFile);
+    currentTextEdit->setPlainText(is.readAll());
+}
+
+bool TrayMemoWindow::createNewFile(QString fileName)
+{
+    currentFile->setFileName(fileName);
+    if (!currentFile->open(QIODevice::ReadWrite | QIODevice::Text))
+            return false;
+
+    return true;
+}
+
 void TrayMemoWindow::createNewTab(QString fileName)
 {
-    QTextEdit *page = new QTextEdit;
-    if (fileName.isEmpty())
-        fileName = getNextFreeFileName();
+    QTextEdit *page = new QTextEdit();
+//    if (fileName.isEmpty())
+//        fileName = getNextFreeFileName();
 
-    QString name = stripPathFromFileName(fileName);
-    int index = tabWidget->addTab(page,name);
-    tabWidget->setTabToolTip(index, fileName);
-    page->setFocus();
+    if (createNewFile(fileName))
+    {
+        QString name = stripPathFromFileName(fileName);
+        int index = tabWidget->addTab(page,name);
+        tabWidget->setTabToolTip(index, fileName);
+        currentTextEdit = page;
+        readTextFromFile();
+        tabWidget->setCurrentWidget(currentTextEdit);
+    }
+    else
+    {
+        QMessageBox mBox;
+        mBox.setText("Specified file could not be opened");
+        mBox.showNormal();
+    }
+
 }
 
 QString TrayMemoWindow::stripPathFromFileName(QString fileName)
@@ -96,19 +148,21 @@ QString TrayMemoWindow::stripPathFromFileName(QString fileName)
     return info.fileName();
 }
 
-void TrayMemoWindow::closeTab()
+void TrayMemoWindow::closeCurrentTab()
 {
+    //TODO implement save notification
+
     int currentIndex = tabWidget->currentIndex();
-    if (currentIndex>0)
+    if (currentIndex>=0)
         tabWidget->removeTab(currentIndex);
 }
 
-QString TrayMemoWindow::getNextFreeFileName()
+QString TrayMemoWindow::getNextFreeFileName(QString fileName)
 {
-    QString name = "text";
+    //QString name = "text";
     ++proposedFileNameNumbers;
-    name += QString::number(proposedFileNameNumbers) + ".txt";
-    return name;
+    fileName += QString::number(proposedFileNameNumbers) + ".txt";
+    return fileName;
 }
 
 void TrayMemoWindow::closeEvent(QCloseEvent *event)

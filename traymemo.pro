@@ -38,14 +38,14 @@ HEADERS += \
 
 
 # Please do not modify the following two lines. Required for deployment.
-include(qmlapplicationviewer/qmlapplicationviewer.pri)
-qtcAddDeployment()
+#include(qmlapplicationviewer/qmlapplicationviewer.pri)
+#qtcAddDeployment()
 RESOURCES += \
     traymemo.qrc
 
 OTHER_FILES += \
-    images/traymemo.svg \
-    qml/main.qml
+    images/traymemo.svg #\
+    #qml/main.qml
 
 #unix:!symbian {
 #    #LIBS += /usr/local/Qxt/lib/libQxtCore.so

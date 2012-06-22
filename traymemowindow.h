@@ -46,14 +46,18 @@ private slots:
     void showMessage();
     void showHideWidget();
     void openFileSaveDialog();
+    void openFileOpenDialog();
+    void saveTextToFile();
+    void readTextFromFile();
+    void closeCurrentTab();
 
 private:
     void createTrayIcon();
     void createActions();
     void createNewTab(QString fileName);
-    QString getNextFreeFileName();
+    bool createNewFile(QString fileName);
+    QString getNextFreeFileName(QString fileName);
     QString stripPathFromFileName(QString fileName);
-    void closeTab();
 
     QAction *showAction;
     QAction *aboutAction;
@@ -65,8 +69,15 @@ private:
 //    QTextEdit *canvas;
 //    QTabWidget* tabs;
     QShortcut *shortCutCreateNew;
+    QShortcut *shortCutSaveText;
+    QShortcut *shortCutOpenExisting;
+    QShortcut *shortCutOpenCloseApp;
+    QShortcut *shortCutCloseCurrentTab;
     TextTabWidget *tabWidget;
     int proposedFileNameNumbers;
+    QFile *currentFile;
+    QTextEdit *currentTextEdit;
+
 };
 
 #endif // TRAYMEMOWINDOW_H
