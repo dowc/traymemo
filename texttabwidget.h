@@ -22,21 +22,24 @@
 #define TEXTTABWIDGET_H
 
 #include <QtGui>
-#include <QShortcut>
-#include <QTabWidget>
+#include <QTextEdit>
 
-class TextTabWidget : public QTabWidget
+class TextTabWidget : public QTextEdit
 {
     Q_OBJECT
 
 public:
     TextTabWidget(const QString &fileName, QWidget *parent);
+    bool isSaved() const;
+    void setAsSaved();
+    void initCompleted();
 
 private slots:
-    //void showHideWidget();
+    void markAsNotSaved();
 
 private:
-    QTextEdit *textEdit;
+    bool fileSaved;
+    bool initialized;
 };
 
 #endif // TEXTTABWIDGET_H

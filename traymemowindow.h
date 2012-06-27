@@ -50,14 +50,19 @@ private slots:
     void saveTextToFile();
     void readTextFromFile();
     void closeCurrentTab();
+    void closeApplication();
+    void changeCurrentTab(int index);
 
 private:
     void createTrayIcon();
     void createActions();
     void createNewTab(QString fileName);
-    bool createNewFile(QString fileName);
-    QString getNextFreeFileName(QString fileName);
+    void createNewFile(QString fileName);
+    void openFile(QString fileName);
     QString stripPathFromFileName(QString fileName);
+    bool showUnsavedDialog();
+    bool anyUnsavedDocuments();
+    void setCurrentWindowTitle(QString fileName);
 
     QAction *showAction;
     QAction *aboutAction;
@@ -71,12 +76,15 @@ private:
     QShortcut *shortCutCreateNew;
     QShortcut *shortCutSaveText;
     QShortcut *shortCutOpenExisting;
-    QShortcut *shortCutOpenCloseApp;
+    QShortcut *shortCutCloseApp;
     QShortcut *shortCutCloseCurrentTab;
-    TextTabWidget *tabWidget;
+    QShortcut *shortCutCycleBetweenTabs;
+    //TextTabWidget *tabWidget;
+    QTabWidget *tabWidget;
     int proposedFileNameNumbers;
     QFile *currentFile;
-    QTextEdit *currentTextEdit;
+    //QTextEdit *currentTextEdit;
+    TextTabWidget *currentTextEdit;
 
 };
 

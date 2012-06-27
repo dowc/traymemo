@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    TrayMemoWindow window;
+    TrayMemoWindow window;    
     window.showMaximized();
     return app.exec();
 }

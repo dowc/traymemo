@@ -22,19 +22,17 @@
 
 #include "traymemowindow.h"
 
-#include <QtDeclarative/QDeclarativeContext>
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeView>
 #include <QxtGlobalShortcut>
 #include <QShortcut>
 #include <QFileInfo>
-#include <stdio.h>
 #include <QIODevice>
+#include <QMessageBox>
+#include <QCloseEvent>
 
 TrayMemoWindow::TrayMemoWindow()
     :proposedFileNameNumbers(0)
 {
-    setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint | Qt::Widget
+    setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget
                    | Qt::WindowStaysOnTopHint);
     setFocusPolicy(Qt::NoFocus);
 
@@ -45,101 +43,191 @@ TrayMemoWindow::TrayMemoWindow()
     shortCutCreateNew = new QShortcut(QKeySequence("Ctrl+N"), this);
     shortCutSaveText = new QShortcut(QKeySequence("Ctrl+S"), this);
     shortCutOpenExisting = new QShortcut(QKeySequence("Ctrl+O"), this);
-    shortCutOpenCloseApp = new QShortcut(QKeySequence("Ctrl+Q"), this);
+    shortCutCloseApp = new QShortcut(QKeySequence("Ctrl+Q"), this);
     shortCutCloseCurrentTab = new QShortcut(QKeySequence("Ctrl+W"), this);
+    //shortCutCycleBetweenTabs = new QShortcut(QKeySequence("Ctrl+Tab"), this);
     QObject::connect(shortCutShowHide, SIGNAL(activated()), this, SLOT(showHideWidget()));
     QObject::connect(shortCutCreateNew, SIGNAL(activated()), this, SLOT(openFileSaveDialog()));
     QObject::connect(shortCutSaveText, SIGNAL(activated()), this, SLOT(saveTextToFile()));
     QObject::connect(shortCutOpenExisting, SIGNAL(activated()), this, SLOT(openFileOpenDialog()));
     QObject::connect(shortCutCloseCurrentTab, SIGNAL(activated()), this, SLOT(closeCurrentTab()));
-    QObject::connect(shortCutOpenCloseApp, SIGNAL(activated()), QCoreApplication::instance(), SLOT(quit()));
+    QObject::connect(shortCutCloseApp, SIGNAL(activated()), this, SLOT(closeApplication()));
+//    QObject::connect(shortCutCycleBetweenTabs, SIGNAL(activated()), this, SLOT(changeCurrentTab()));
 
     QObject::connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
-//    canvas = new QDeclarativeView(this);
-//    canvas->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-//    canvas->engine()->rootContext()->setContextObject(this);
-//    canvas->engine()->rootContext()->setContextProperty("traymemowindow", this);
-//    canvas->setSource(QUrl("qrc:/qml/main.qml"));
-//    canvas = new QTextEdit(this);
-    tabWidget = new TextTabWidget("text.txt", this);
+    tabWidget = new QTabWidget(this);
+    QObject::connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeCurrentTab(int)));
     setFocusProxy(tabWidget);
-//    canvas->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint | Qt::Widget
-//                           | Qt::WindowStaysOnTopHint);
-//    canvas->setFocusPolicy(Qt::StrongFocus);
-
     mainLayout->addWidget(tabWidget);
     setLayout(mainLayout);
 
     setIcon(1);
     trayIcon->show();
 
-    setWindowTitle(tr("traymemo"));
-    //createNewTab("test.txt");
-    //openFileSaveDialog();
+    setWindowTitle(tr("Traymemo"));
     currentFile = new QFile(this);
-    //currentTextEdit = new QTextEdit(this);
+}
+
+void TrayMemoWindow::closeApplication()
+{
+    anyUnsavedDocuments();
+    QCoreApplication::quit();
+}
+
+void TrayMemoWindow::changeCurrentTab(int index)
+{
+    tabWidget->setCurrentIndex(index);
+    setCurrentWindowTitle(tabWidget->tabToolTip(index));
+    currentTextEdit = dynamic_cast<TextTabWidget*>(tabWidget->currentWidget());
+
+    // DOES NOT WORK
+//    int count = tabWidget->count();
+//    if (count > 0)
+//    {
+//        int current = tabWidget->currentIndex();
+//        if (count > 1)
+//        {
+//            tabWidget->sesetCurrentIndex(current + 1);
+//            currentTextEdit = dynamic_cast<TextTabWidget*>(tabWidget->currentWidget());
+//        }
+//    }
 }
 
 void TrayMemoWindow::openFileSaveDialog()
 {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "todo.txt", tr("Text files (*.txt,*.config)"));
-
+    if (fileName.isEmpty())
+    {
+        fileName = QString("untitled%1.txt").arg(proposedFileNameNumbers);
+        ++proposedFileNameNumbers;
+    }
     createNewTab(fileName);
 }
 
 void TrayMemoWindow::openFileOpenDialog()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "todo.txt", tr("Text files (*.txt,*.config)"));
-
+    if (fileName.isEmpty())
+        return;
     createNewTab(fileName);
 }
 
 void TrayMemoWindow::saveTextToFile()
 {
-    QTextStream os(currentFile);
-    os << currentTextEdit->toPlainText();
+    QTemporaryFile tempFile;
+    if (tempFile.open())
+    {
+        QTextStream os(&tempFile);
+        os << currentTextEdit->toPlainText();
+
+        const QString tempFileName = tempFile.fileName();
+        tempFile.close();
+        if (!currentFile->open(QIODevice::ReadWrite | QIODevice::Text))
+            return;
+        QString currentFileName = currentFile->fileName();
+        if (QFile::exists(currentFileName))
+           QFile::remove(currentFileName);
+
+        QFile::copy(tempFileName, currentFileName);
+        currentTextEdit->setAsSaved();
+    }
+    else
+    {
+        QErrorMessage errorMessage;
+        errorMessage.showMessage("Failed to save text!");
+    }
+
+    //currentFile->seek(0);
+
 }
 
 void TrayMemoWindow::readTextFromFile()
 {
+    currentTextEdit->clear();
     QTextStream is(currentFile);
     currentTextEdit->setPlainText(is.readAll());
 }
 
-bool TrayMemoWindow::createNewFile(QString fileName)
+void TrayMemoWindow::createNewFile(QString fileName)
 {
-    currentFile->setFileName(fileName);
-    if (!currentFile->open(QIODevice::ReadWrite | QIODevice::Text))
-            return false;
+    //currentFile->setFileName(fileName);
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadWrite | QIODevice::Text))
+    {
+        QErrorMessage errorMessage;
+        errorMessage.showMessage("Specified file could not be created!");
+    }
 
-    return true;
+    currentFile = &file;
+}
+
+void TrayMemoWindow::openFile(QString fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QErrorMessage errorMessage;
+        errorMessage.showMessage("Specified file could not be opened!");
+    }
+    QTextStream is(&file);
+#ifndef QT_NO_CURSOR
+     QApplication::setOverrideCursor(Qt::WaitCursor);
+ #endif
+     currentTextEdit->clear();
+     currentTextEdit->setPlainText(is.readAll());
+ #ifndef QT_NO_CURSOR
+     QApplication::restoreOverrideCursor();
+ #endif
+
+    currentFile->setFileName(file.fileName());
 }
 
 void TrayMemoWindow::createNewTab(QString fileName)
 {
-    QTextEdit *page = new QTextEdit();
+    int count = tabWidget->count();
+    while(count > 0)
+    {
+        if (tabWidget->tabToolTip(count-1) == fileName)
+        {
+            tabWidget->setCurrentIndex(count-1);
+            return;
+        }
+        --count;
+    }
+
+    TextTabWidget *page = new TextTabWidget(fileName, this);
 //    if (fileName.isEmpty())
 //        fileName = getNextFreeFileName();
 
-    if (createNewFile(fileName))
+    QFile file(fileName);
+    if (file.exists())
     {
-        QString name = stripPathFromFileName(fileName);
-        int index = tabWidget->addTab(page,name);
-        tabWidget->setTabToolTip(index, fileName);
         currentTextEdit = page;
-        readTextFromFile();
-        tabWidget->setCurrentWidget(currentTextEdit);
+        openFile(fileName);
+
+        //readTextFromFile();
     }
     else
     {
-        QMessageBox mBox;
-        mBox.setText("Specified file could not be opened");
-        mBox.showNormal();
+        createNewFile(fileName);
+        currentTextEdit = page;
     }
+    QString name = stripPathFromFileName(fileName);
+    int index = tabWidget->addTab(page,name);
+    tabWidget->setTabToolTip(index, fileName);
+    tabWidget->setCurrentWidget(currentTextEdit);
+    setCurrentWindowTitle(fileName);
+    currentTextEdit->initCompleted();
+    currentTextEdit->setFocus();
+}
 
+void TrayMemoWindow::setCurrentWindowTitle(QString fileName)
+{
+    QString windowTitle = QString(fileName + " - TrayMemo");
+    setWindowTitle(windowTitle);
 }
 
 QString TrayMemoWindow::stripPathFromFileName(QString fileName)
@@ -149,28 +237,67 @@ QString TrayMemoWindow::stripPathFromFileName(QString fileName)
 }
 
 void TrayMemoWindow::closeCurrentTab()
-{
-    //TODO implement save notification
-
+{    
     int currentIndex = tabWidget->currentIndex();
     if (currentIndex>=0)
+    {
+        //TODO refactor
+        bool closeCancelled = false;
+        if (!currentTextEdit->isSaved())
+            closeCancelled = showUnsavedDialog();
+
+        if (closeCancelled)
+            return;
         tabWidget->removeTab(currentIndex);
+    }
 }
 
-QString TrayMemoWindow::getNextFreeFileName(QString fileName)
+bool TrayMemoWindow::showUnsavedDialog()
 {
-    //QString name = "text";
-    ++proposedFileNameNumbers;
-    fileName += QString::number(proposedFileNameNumbers) + ".txt";
-    return fileName;
+    QMessageBox msgBox;
+    msgBox.setText("The document has been modified.");
+    msgBox.setInformativeText("Do you want to save your changes?");
+    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Save);
+    int result = msgBox.exec();
+    switch (result) {
+       case QMessageBox::Save:
+           saveTextToFile();
+           break;
+       case QMessageBox::Discard:
+           break;
+       case QMessageBox::Cancel:
+           return true;
+           break;
+       default:
+           break;
+     }
+    return false;
+}
+
+bool TrayMemoWindow::anyUnsavedDocuments()
+{
+    bool anySaves = false;
+    int count = tabWidget->count();
+    while(count > 0)
+    {
+        currentTextEdit = dynamic_cast<TextTabWidget*>(tabWidget->widget(count-1));
+        if (!currentTextEdit->isSaved())
+        {
+            showUnsavedDialog();
+            anySaves = true;
+        }
+        --count;
+    }
+    return anySaves;
 }
 
 void TrayMemoWindow::closeEvent(QCloseEvent *event)
 {
-    if (trayIcon->isVisible()) {        
-        hide();
-        event->ignore();
-    }
+//    if (trayIcon->isVisible()) {
+//        hide();
+//        event->ignore();
+//    }
 }
 
 void TrayMemoWindow::setIcon(int index)
@@ -198,8 +325,7 @@ void TrayMemoWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
 }
 
 void TrayMemoWindow::showHideWidget()
-{
-    //QDialog::setVisible(!isVisible());
+{    
     if (!isVisible())
     {
         QDialog::setVisible(true);
@@ -214,23 +340,15 @@ void TrayMemoWindow::showHideWidget()
 
 void TrayMemoWindow::showMessage()
 {
-    QMessageBox::information(this, tr("traymemo"),
-                             tr("<b>About traymemo</b><br>"
-                                "traymemo version 0.4<br>"
-                                "Aauthor: Markus Nolvi"));
+    QMessageBox::about(this, tr("About Traymemo"),
+                             tr("<b>TrayMemo</b><br>"
+                                "Version 0.5<br>"
+                                "Author: Markus Nolvi<br>"
+                                "E-mail: markus.nolvi@gmail.com"));
 }
 
 void TrayMemoWindow::createActions()
 {
-//    minimizeAction = new QAction(tr("Mi&nimize"), this);
-//    connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
-
-//    maximizeAction = new QAction(tr("Ma&ximize"), this);
-//    connect(maximizeAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
-
-//    restoreAction = new QAction(tr("&Restore"), this);
-//    connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
-
     showAction = new QAction(tr("&Open"), this);
     connect(showAction, SIGNAL(triggered()), this, SLOT(showNormal()));
 
@@ -251,6 +369,7 @@ void TrayMemoWindow::createTrayIcon()
     trayIconMenu->addAction(quitAction);
 
     trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setToolTip("Traymemo");
     trayIcon->setContextMenu(trayIconMenu);
 }
 

@@ -23,8 +23,9 @@
 #include "texttabwidget.h"
 
 TextTabWidget::TextTabWidget(const QString &fileName, QWidget *parent = 0)
-    :QTabWidget(parent)
+    :QTextEdit(parent), fileSaved(true), initialized(false)
 {
+    QObject::connect(this, SIGNAL(textChanged()), this, SLOT(markAsNotSaved()));
 //    setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint | Qt::Widget
 //                   | Qt::WindowStaysOnTopHint);
 
@@ -38,4 +39,25 @@ TextTabWidget::TextTabWidget(const QString &fileName, QWidget *parent = 0)
 
 //    mainLayout->addWidget(textEdit);
 //    setLayout(mainLayout);
+}
+
+void TextTabWidget::markAsNotSaved()
+{
+    if (initialized)
+        fileSaved = false;
+}
+
+bool TextTabWidget::isSaved() const
+{
+    return fileSaved;
+}
+
+void TextTabWidget::setAsSaved()
+{
+    fileSaved = true;
+}
+
+void TextTabWidget::initCompleted()
+{
+    initialized = true;
 }
