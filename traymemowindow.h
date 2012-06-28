@@ -28,7 +28,7 @@
 #include <QxtGlobalShortcut>
 #include <QtDeclarative/QDeclarativeView>
 #include <QTabWidget>
-#include <texttabwidget.h>
+#include <traymemotab.h>
 
 class TrayMemoWindow : public QDialog
 {
@@ -37,25 +37,21 @@ class TrayMemoWindow : public QDialog
 public:
     TrayMemoWindow();
 
-protected:
-    void closeEvent(QCloseEvent *event);    
-
-private slots:
-    void setIcon(int index);
+private slots:    
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
-    void showMessage();
+    void showAboutMessage();
     void showHideWidget();
     void openFileSaveDialog();
     void openFileOpenDialog();
-    void saveTextToFile();
-    void readTextFromFile();
+    void saveTextToFile();    
     void closeCurrentTab();
     void closeApplication();
     void changeCurrentTab(int index);
+    void showCurrentShortcuts();
 
 private:
+    void readTextFromFile();
     void createTrayIcon();
-    void createActions();
     void createNewTab(QString fileName);
     void createNewFile(QString fileName);
     void openFile(QString fileName);
@@ -64,27 +60,22 @@ private:
     bool anyUnsavedDocuments();
     void setCurrentWindowTitle(QString fileName);
 
-    QAction *showAction;
-    QAction *aboutAction;
-    QAction *quitAction;
-    QSystemTrayIcon *trayIcon;
-    QMenu *trayIconMenu;
-    QxtGlobalShortcut* shortCutShowHide;
-    //QDeclarativeView *canvas;
-//    QTextEdit *canvas;
-//    QTabWidget* tabs;
-    QShortcut *shortCutCreateNew;
-    QShortcut *shortCutSaveText;
-    QShortcut *shortCutOpenExisting;
-    QShortcut *shortCutCloseApp;
-    QShortcut *shortCutCloseCurrentTab;
-    QShortcut *shortCutCycleBetweenTabs;
-    //TextTabWidget *tabWidget;
+//    QAction *showAction;
+//    QAction *aboutAction;
+//    QAction *quitAction;
+//    QSystemTrayIcon *trayIcon;
+//    QMenu *trayIconMenu;
+//    QxtGlobalShortcut* shortCutShowHide;
+//    QShortcut *shortCutCreateNew;
+//    QShortcut *shortCutSaveText;
+//    QShortcut *shortCutOpenExisting;
+//    QShortcut *shortCutCloseApp;
+//    QShortcut *shortCutCloseCurrentTab;
+//    QShortcut *shortCutCycleBetweenTabs;
     QTabWidget *tabWidget;
     int proposedFileNameNumbers;
-    QFile *currentFile;
-    //QTextEdit *currentTextEdit;
-    TextTabWidget *currentTextEdit;
+    QFile *currentFile;    
+    TrayMemoTab *currentTextEdit;
 
 };
 

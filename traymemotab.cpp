@@ -20,9 +20,9 @@
 
 #include <QtGui>
 
-#include "texttabwidget.h"
+#include "traymemotab.h"
 
-TextTabWidget::TextTabWidget(const QString &fileName, QWidget *parent = 0)
+TrayMemoTab::TrayMemoTab(const QString &fileName, QWidget *parent = 0)
     :QTextEdit(parent), fileSaved(true), initialized(false)
 {
     QObject::connect(this, SIGNAL(textChanged()), this, SLOT(markAsNotSaved()));
@@ -41,23 +41,23 @@ TextTabWidget::TextTabWidget(const QString &fileName, QWidget *parent = 0)
 //    setLayout(mainLayout);
 }
 
-void TextTabWidget::markAsNotSaved()
+void TrayMemoTab::markAsNotSaved()
 {
     if (initialized)
         fileSaved = false;
 }
 
-bool TextTabWidget::isSaved() const
+bool TrayMemoTab::isSaved() const
 {
     return fileSaved;
 }
 
-void TextTabWidget::setAsSaved()
+void TrayMemoTab::setAsSaved()
 {
     fileSaved = true;
 }
 
-void TextTabWidget::initCompleted()
+void TrayMemoTab::initCompleted()
 {
     initialized = true;
 }

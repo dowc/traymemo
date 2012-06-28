@@ -30,11 +30,11 @@ TARGET = traymemo
 
 SOURCES += main.cpp \
     traymemowindow.cpp \
-    texttabwidget.cpp
+    traymemotab.cpp
 
 HEADERS += \
     traymemowindow.h \
-    texttabwidget.h
+    traymemotab.h
 
 
 # Please do not modify the following two lines. Required for deployment.

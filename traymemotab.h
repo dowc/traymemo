@@ -18,18 +18,18 @@
 # along with traymemo.  If not, see <http://www.gnu.org/licenses/>.
 ****************************************************************************/
 
-#ifndef TEXTTABWIDGET_H
-#define TEXTTABWIDGET_H
+#ifndef TRAYMEMOTAB_H
+#define TRAYMEMOTAB_H
 
 #include <QtGui>
 #include <QTextEdit>
 
-class TextTabWidget : public QTextEdit
+class TrayMemoTab : public QTextEdit
 {
     Q_OBJECT
 
 public:
-    TextTabWidget(const QString &fileName, QWidget *parent);
+    TrayMemoTab(const QString &fileName, QWidget *parent);
     bool isSaved() const;
     void setAsSaved();
     void initCompleted();
@@ -42,4 +42,4 @@ private:
     bool initialized;
 };
 
-#endif // TEXTTABWIDGET_H
+#endif // TRAYMEMOTAB_H
