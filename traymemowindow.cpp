@@ -232,7 +232,7 @@ void TrayMemoWindow::closeCurrentTab()
         //TODO refactor
         bool closeCancelled = false;
         if (!currentTextEdit->isSaved())
-            closeCancelled = showUnsavedDialog();
+            closeCancelled = showUnsavedDialog(currentTextEdit->getFileName());
 
         if (closeCancelled)
             return;
@@ -240,10 +240,10 @@ void TrayMemoWindow::closeCurrentTab()
     }
 }
 
-bool TrayMemoWindow::showUnsavedDialog()
+bool TrayMemoWindow::showUnsavedDialog(QString fileName)
 {
     QMessageBox msgBox;
-    msgBox.setText("The document has been modified.");
+    msgBox.setText(QString("The document %1 has been modified.").arg(fileName));
     msgBox.setInformativeText("Do you want to save your changes?");
     msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Save);
@@ -269,10 +269,11 @@ bool TrayMemoWindow::anyUnsavedDocuments()
     int count = tabWidget->count();
     while(count > 0)
     {
+        tabWidget->setCurrentIndex(count-1);
         currentTextEdit = dynamic_cast<TrayMemoTab*>(tabWidget->widget(count-1));
         if (!currentTextEdit->isSaved())
         {
-            showUnsavedDialog();
+            showUnsavedDialog(currentTextEdit->getFileName());
             anySaves = true;
         }
         --count;
@@ -312,7 +313,7 @@ void TrayMemoWindow::showAboutMessage()
 {
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.52<br>"
+                                "Version 0.54<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }

@@ -56,7 +56,7 @@ private:
     void createNewFile(QString fileName);
     void openFile(QString fileName);
     QString stripPathFromFileName(QString fileName);
-    bool showUnsavedDialog();
+    bool showUnsavedDialog(QString fileName);
     bool anyUnsavedDocuments();
     void setCurrentWindowTitle(QString fileName);
 

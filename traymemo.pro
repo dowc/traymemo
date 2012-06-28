@@ -1,4 +1,4 @@
-# Copyright (C) 2011 Markus Nolvi
+# Copyright (C) 2012 Markus Nolvi
 #
 # This file is part of TrayMemo.
 # For more information, see <http://code.google.com/p/traymemo/>
@@ -36,16 +36,12 @@ HEADERS += \
     traymemowindow.h \
     traymemotab.h
 
-
-# Please do not modify the following two lines. Required for deployment.
-#include(qmlapplicationviewer/qmlapplicationviewer.pri)
-#qtcAddDeployment()
 RESOURCES += \
     traymemo.qrc
 
 OTHER_FILES += \
-    images/traymemo.svg #\
-    #qml/main.qml
+    images/traymemo.svg
+
 
 #unix:!symbian {
 #    #LIBS += /usr/local/Qxt/lib/libQxtCore.so

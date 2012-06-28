@@ -33,6 +33,7 @@ public:
     bool isSaved() const;
     void setAsSaved();
     void initCompleted();
+    QString getFileName();
 
 private slots:
     void markAsNotSaved();
@@ -40,6 +41,7 @@ private slots:
 private:
     bool fileSaved;
     bool initialized;
+    QString fileName;
 };
 
 #endif // TRAYMEMOTAB_H

@@ -23,22 +23,10 @@
 #include "traymemotab.h"
 
 TrayMemoTab::TrayMemoTab(const QString &fileName, QWidget *parent = 0)
-    :QTextEdit(parent), fileSaved(true), initialized(false)
+    :QTextEdit(parent), fileSaved(true), initialized(false), fileName(fileName)
 {
     QObject::connect(this, SIGNAL(textChanged()), this, SLOT(markAsNotSaved()));
-//    setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint | Qt::Widget
-//                   | Qt::WindowStaysOnTopHint);
-
-//    QVBoxLayout *mainLayout = new QVBoxLayout;
-
-//    textEdit = new QTextEdit(this);
-//    setFocusProxy(textEdit);
-//    textEdit->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint | Qt::Widget
-//                           | Qt::WindowStaysOnTopHint);
-//    textEdit->setFocusPolicy(Qt::StrongFocus);
-
-//    mainLayout->addWidget(textEdit);
-//    setLayout(mainLayout);
+    setAcceptRichText(false);
 }
 
 void TrayMemoTab::markAsNotSaved()
@@ -60,4 +48,9 @@ void TrayMemoTab::setAsSaved()
 void TrayMemoTab::initCompleted()
 {
     initialized = true;
+}
+
+QString TrayMemoTab::getFileName()
+{
+    return fileName;
 }
