@@ -27,7 +27,6 @@
 #include <QFileInfo>
 #include <QIODevice>
 #include <QMessageBox>
-#include <QCloseEvent>
 
 TrayMemoWindow::TrayMemoWindow()
     :proposedFileNameNumbers(0)
@@ -42,14 +41,14 @@ TrayMemoWindow::TrayMemoWindow()
     QShortcut *shortCutOpenExisting = new QShortcut(QKeySequence("Ctrl+O"), this);
     QShortcut *shortCutCloseApp = new QShortcut(QKeySequence("Ctrl+Q"), this);
     QShortcut *shortCutCloseCurrentTab = new QShortcut(QKeySequence("Ctrl+W"), this);
-    //shortCutCycleBetweenTabs = new QShortcut(QKeySequence("Ctrl+Tab"), this);
+    //QShortcut *shortCutCycleBetweenTabs = new QShortcut(QKeySequence("Ctrl+Tab"), this);
     QObject::connect(shortCutShowHide, SIGNAL(activated()), this, SLOT(showHideWidget()));
     QObject::connect(shortCutCreateNew, SIGNAL(activated()), this, SLOT(openFileSaveDialog()));
     QObject::connect(shortCutSaveText, SIGNAL(activated()), this, SLOT(saveTextToFile()));
     QObject::connect(shortCutOpenExisting, SIGNAL(activated()), this, SLOT(openFileOpenDialog()));
     QObject::connect(shortCutCloseCurrentTab, SIGNAL(activated()), this, SLOT(closeCurrentTab()));
     QObject::connect(shortCutCloseApp, SIGNAL(activated()), this, SLOT(closeApplication()));
-//    QObject::connect(shortCutCycleBetweenTabs, SIGNAL(activated()), this, SLOT(changeCurrentTab()));
+    //QObject::connect(shortCutCycleBetweenTabs, SIGNAL(activated()), this, SLOT(changeCurrentTab(int)));
 
     tabWidget = new QTabWidget(this);
     currentFile = new QFile(this);
@@ -78,18 +77,6 @@ void TrayMemoWindow::changeCurrentTab(int index)
     tabWidget->setCurrentIndex(index);
     setCurrentWindowTitle(tabWidget->tabToolTip(index));
     currentTextEdit = dynamic_cast<TrayMemoTab*>(tabWidget->currentWidget());
-
-    // DOES NOT WORK
-//    int count = tabWidget->count();
-//    if (count > 0)
-//    {
-//        int current = tabWidget->currentIndex();
-//        if (count > 1)
-//        {
-//            tabWidget->sesetCurrentIndex(current + 1);
-//            currentTextEdit = dynamic_cast<TrayMemoTab*>(tabWidget->currentWidget());
-//        }
-//    }
 }
 
 void TrayMemoWindow::openFileSaveDialog()
@@ -313,7 +300,7 @@ void TrayMemoWindow::showAboutMessage()
 {
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.54<br>"
+                                "Version 0.55<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }
@@ -337,7 +324,7 @@ void TrayMemoWindow::createTrayIcon()
     connect(showShortCuts, SIGNAL(triggered()), this, SLOT(showCurrentShortcuts()));
 
     QAction *aboutAction = new QAction(tr("&About"), this);
-    connect(aboutAction, SIGNAL(triggered()), this, SLOT(showMessage()));
+    connect(aboutAction, SIGNAL(triggered()), this, SLOT(showAboutMessage()));
 
     QAction *quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));

@@ -60,18 +60,6 @@ private:
     bool anyUnsavedDocuments();
     void setCurrentWindowTitle(QString fileName);
 
-//    QAction *showAction;
-//    QAction *aboutAction;
-//    QAction *quitAction;
-//    QSystemTrayIcon *trayIcon;
-//    QMenu *trayIconMenu;
-//    QxtGlobalShortcut* shortCutShowHide;
-//    QShortcut *shortCutCreateNew;
-//    QShortcut *shortCutSaveText;
-//    QShortcut *shortCutOpenExisting;
-//    QShortcut *shortCutCloseApp;
-//    QShortcut *shortCutCloseCurrentTab;
-//    QShortcut *shortCutCycleBetweenTabs;
     QTabWidget *tabWidget;
     int proposedFileNameNumbers;
     QFile *currentFile;    
