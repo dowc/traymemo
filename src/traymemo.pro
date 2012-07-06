@@ -18,12 +18,8 @@
 
 QT       += gui
 
-INCLUDEPATH += . /usr/local/Qxt/include/QxtCore/ \
-                 /usr/local/Qxt/include/QxtGui/
-
 CONFIG  += qxt
 QXT     += gui
-
 
 TEMPLATE = app
 TARGET = traymemo
@@ -43,19 +39,11 @@ OTHER_FILES += \
     images/traymemo.svg
 
 
-#unix:!symbian {
-#    #LIBS += /usr/local/Qxt/lib/libQxtCore.so
-#    LIBS += /usr/local/Qxt/lib/libQxtGui.so
-#    #LIBS += /usr/lib/libqxt.so
-#    #LIBS += /usr/local/Qxt/lib/libQxt.so
-#}
+unix:!symbian {
+    LIBS += -L/usr/local/Qxt/lib/ -lQxtGui
+    #INCLUDEPATH += /usr/local/Qxt/include/QxtGui/
+}
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../usr/local/Qxt/lib/release/ -lQxtGui
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../usr/local/Qxt/lib/debug/ -lQxtGui
-else:symbian: LIBS += -lQxtGui
-else:unix: LIBS += -L$$PWD/../../../../../usr/local/Qxt/lib/ -lQxtGui
-
-INCLUDEPATH += $$PWD/../../../../../usr/local/Qxt/include
-DEPENDPATH += $$PWD/../../../../../usr/local/Qxt/include
-
 
