@@ -23,11 +23,16 @@ Page instfiles
 Section ""
 SetOutPath $INSTDIR
 SetShellVarContext all
-File ..\bin\traymemo.exe
-File QtCore4.dll
+File ..\..\traymemo-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Release\src\release\traymemo.exe
 File QtGui4.dll
-File QxtGui.dll
+File QtCore4.dll
+File QtSvg4.dll
+File libQxtCore.a
 File QxtCore.dll
+File libQxtGui.a
+File QxtGui.dll
+File mingwm10.dll
+File libgcc_s_dw2-1.dll
 writeUninstaller $INSTDIR\uninstaller.exe
 
 CreateDirectory "$SMPROGRAMS\TrayMemo"
@@ -41,10 +46,15 @@ SectionEnd
 section "Uninstall"
 SetShellVarContext all
 delete $INSTDIR\traymemo.exe
-delete $INSTDIR\QtCore4.dll
 delete $INSTDIR\QtGui4.dll
-delete $INSTDIR\QxtGui.dll
+delete $INSTDIR\QtCore4.dll
+delete $INSTDIR\QtSvg4.dll
+delete $INSTDIR\libQxtCore.a
 delete $INSTDIR\QxtCore.dll
+delete $INSTDIR\libQxtGui.a
+delete $INSTDIR\QxtGui.dll
+delete $INSTDIR\mingwm10.dll
+delete $INSTDIR\libgcc_s_dw2-1.dll
 delete $INSTDIR\uninstaller.exe
 RMDir $INSTDIR
 delete "$SMPROGRAMS\TrayMemo\TrayMemo.lnk"

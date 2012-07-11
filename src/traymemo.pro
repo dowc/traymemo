@@ -24,6 +24,8 @@ QXT     += gui
 TEMPLATE = app
 TARGET = traymemo
 
+#QMAKE_LFLAGS += -static-libgcc
+
 SOURCES += main.cpp \
     traymemowindow.cpp \
     traymemotab.cpp
@@ -38,12 +40,24 @@ RESOURCES += \
 OTHER_FILES += \
     images/traymemo.svg
 
+#debug:DEFINES+= _DEBUG
 
 unix:!symbian {
     LIBS += -L/usr/local/Qxt/lib/ -lQxtGui
     #INCLUDEPATH += /usr/local/Qxt/include/QxtGui/
 }
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../usr/local/Qxt/lib/release/ -lQxtGui
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../usr/local/Qxt/lib/debug/ -lQxtGui
+win32:CONFIG(release, debug|release): {
+    RC_FILE = traymemo.rc
+    INCLUDEPATH += -LC:/Qxt/include
+    LIBS += -LC:/Qxt/lib/libQxtCore.dll.a
+    LIBS += -LC:/Qxt/lib/libQxtGui.dll.a
+#    LIBS += -libQxtGui.dll.a
+}
+else:win32:CONFIG(debug, debug|release): {
+    INCLUDEPATH += -LC:/Qxt/include
+    LIBS += -LC:/Qxt/lib/libQxtCored.dll.a
+    LIBS += -LC:/Qxt/lib/libQxtGuid.dll.a
+}
+
 

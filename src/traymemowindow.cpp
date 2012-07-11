@@ -31,8 +31,12 @@
 TrayMemoWindow::TrayMemoWindow()
     :proposedFileNameNumbers(0)
 {
+#ifndef QT_NO_DEBUG
+    setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget);
+#else
     setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget
                    | Qt::WindowStaysOnTopHint);
+#endif
     setFocusPolicy(Qt::NoFocus);
 
     QxtGlobalShortcut *shortCutShowHide = new QxtGlobalShortcut(QKeySequence("Ctrl+E"), this);
@@ -63,8 +67,7 @@ TrayMemoWindow::TrayMemoWindow()
 
     QIcon icon(":/images/traymemo.svg");
     setWindowIcon(icon);
-    setWindowTitle(tr("TrayMemo"));
-}
+    setWindowTitle(tr("TrayMemo"));}
 
 void TrayMemoWindow::closeApplication()
 {
@@ -108,19 +111,36 @@ void TrayMemoWindow::saveTextToFile()
 
         const QString tempFileName = tempFile.fileName();
         tempFile.close();
-        if (!currentFile->open(QIODevice::ReadWrite | QIODevice::Text))
-            return;
+
         QString currentFileName = currentFile->fileName();
         if (QFile::exists(currentFileName))
-           QFile::remove(currentFileName);
-
-        QFile::copy(tempFileName, currentFileName);
-        currentTextEdit->setAsSaved();
+        {
+           if (!QFile::remove(currentFileName))
+           {
+               QErrorMessage errorMessage;
+               errorMessage.showMessage(QString("Failed to remove current file, %1").arg(currentFile->errorString()));
+               errorMessage.exec();
+           }
+           else
+           {
+               if (!QFile::copy(tempFileName, currentFileName))
+               {
+                   QErrorMessage errorMessage;
+                   errorMessage.showMessage("Failed to replace current file!");
+                   errorMessage.exec();
+               }
+               else
+               {
+                   currentTextEdit->setAsSaved();
+               }
+           }
+        }
     }
     else
     {
         QErrorMessage errorMessage;
-        errorMessage.showMessage("Failed to save text!");
+        errorMessage.showMessage("Failed to create temp file!");
+        errorMessage.exec();
     }
 }
 
@@ -138,9 +158,11 @@ void TrayMemoWindow::createNewFile(QString fileName)
     {
         QErrorMessage errorMessage;
         errorMessage.showMessage("Specified file could not be created!");
+        errorMessage.exec();
     }
 
-    currentFile = &file;
+    currentFile->setFileName(fileName);
+    currentFile->close();
 }
 
 void TrayMemoWindow::openFile(QString fileName)
@@ -150,6 +172,7 @@ void TrayMemoWindow::openFile(QString fileName)
     {
         QErrorMessage errorMessage;
         errorMessage.showMessage("Specified file could not be opened!");
+        errorMessage.exec();
     }
     QTextStream is(&file);
 #ifndef QT_NO_CURSOR
@@ -162,6 +185,7 @@ void TrayMemoWindow::openFile(QString fileName)
  #endif
 
     currentFile->setFileName(file.fileName());
+    currentFile->close();
 }
 
 void TrayMemoWindow::createNewTab(QString fileName)
@@ -230,6 +254,7 @@ void TrayMemoWindow::closeCurrentTab()
 bool TrayMemoWindow::showUnsavedDialog(QString fileName)
 {
     QMessageBox msgBox;
+    msgBox.setWindowFlags(Qt::WindowStaysOnTopHint);
     msgBox.setText(QString("The document %1 has been modified.").arg(fileName));
     msgBox.setInformativeText("Do you want to save your changes?");
     msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
@@ -300,7 +325,7 @@ void TrayMemoWindow::showAboutMessage()
 {
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.55<br>"
+                                "Version 0.59<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }
@@ -320,6 +345,9 @@ void TrayMemoWindow::createTrayIcon()
     if (!QSystemTrayIcon::isSystemTrayAvailable())
         return;
 
+    QAction *minimizeAction = new QAction(tr("&Minimize"), this);
+    connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
+
     QAction *showShortCuts = new QAction(tr("&Schortcuts"), this);
     connect(showShortCuts, SIGNAL(triggered()), this, SLOT(showCurrentShortcuts()));
 
@@ -330,6 +358,7 @@ void TrayMemoWindow::createTrayIcon()
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 
     QMenu *trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(minimizeAction);
     trayIconMenu->addAction(showShortCuts);
     trayIconMenu->addAction(aboutAction);
     trayIconMenu->addSeparator();
