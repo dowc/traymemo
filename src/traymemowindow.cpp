@@ -69,10 +69,25 @@ TrayMemoWindow::TrayMemoWindow()
     setWindowIcon(icon);
     setWindowTitle(tr("TrayMemo"));}
 
+TrayMemoWindow::~TrayMemoWindow()
+{
+    delete tabWidget;
+    delete currentFile;
+}
+
 void TrayMemoWindow::closeApplication()
 {
-    anyUnsavedDocuments();
-    QCoreApplication::quit();
+    QMessageBox msgBox;
+    msgBox.setWindowFlags(Qt::WindowStaysOnTopHint);
+    msgBox.setText("Do you really want to quit?");
+    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    int result = msgBox.exec();
+    if (result == QMessageBox::Ok)
+    {
+        anyUnsavedDocuments();
+        QCoreApplication::quit();
+    }
 }
 
 void TrayMemoWindow::changeCurrentTab(int index)
@@ -325,7 +340,7 @@ void TrayMemoWindow::showAboutMessage()
 {
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.59<br>"
+                                "Version 0.60<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }

@@ -36,6 +36,7 @@ class TrayMemoWindow : public QDialog
 
 public:
     TrayMemoWindow();
+    ~TrayMemoWindow();
 
 private slots:    
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
