@@ -49,6 +49,8 @@ private slots:
     void closeApplication();
     void changeCurrentTab(int index);
     void showCurrentShortcuts();
+    void moveToNextTab();
+    void moveToPreviousTab();
 
 private:
     void readTextFromFile();

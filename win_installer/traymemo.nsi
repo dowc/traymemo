@@ -27,12 +27,17 @@ File ..\..\traymemo-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Release\
 File QtGui4.dll
 File QtCore4.dll
 File QtSvg4.dll
+File QtXml4.dll
 File libQxtCore.a
 File QxtCore.dll
 File libQxtGui.a
 File QxtGui.dll
 File mingwm10.dll
 File libgcc_s_dw2-1.dll
+SetOutPath $INSTDIR\imageformats
+File qsvg4.dll
+SetOutPath $INSTDIR\iconengines
+File qsvgicon4.dll
 writeUninstaller $INSTDIR\uninstaller.exe
 
 CreateDirectory "$SMPROGRAMS\TrayMemo"
@@ -43,12 +48,15 @@ SectionEnd
 
 
 
-section "Uninstall"
+Section "Uninstall"
 SetShellVarContext all
 delete $INSTDIR\traymemo.exe
 delete $INSTDIR\QtGui4.dll
 delete $INSTDIR\QtCore4.dll
 delete $INSTDIR\QtSvg4.dll
+delete $INSTDIR\QtXml4.dll
+delete $INSTDIR\imageformats\qsvg4.dll
+delete $INSTDIR\iconengines\qsvgicon4.dll
 delete $INSTDIR\libQxtCore.a
 delete $INSTDIR\QxtCore.dll
 delete $INSTDIR\libQxtGui.a
@@ -62,4 +70,4 @@ delete "$DESKTOP\TrayMemo.lnk"
 delete "$SMPROGRAMS\TrayMemo\Uninstall TrayMemo.lnk"
 RMDir "$SMPROGRAMS\TrayMemo"
 DeleteRegKey HKEY_CURRENT_USER "Software\TrayMemo\TrayMemo"
-sectionEnd
+SectionEnd

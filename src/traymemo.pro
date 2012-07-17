@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with TrayMemo.  If not, see <http://www.gnu.org/licenses/>.
 
-QT       += gui
+QT       += gui svg xml
 
 CONFIG  += qxt
 QXT     += gui
@@ -40,8 +40,6 @@ RESOURCES += \
 OTHER_FILES += \
     images/traymemo.svg
 
-#debug:DEFINES+= _DEBUG
-
 unix:!symbian {
     LIBS += -L/usr/local/Qxt/lib/ -lQxtGui
     #INCLUDEPATH += /usr/local/Qxt/include/QxtGui/
@@ -52,7 +50,6 @@ win32:CONFIG(release, debug|release): {
     INCLUDEPATH += -LC:/Qxt/include
     LIBS += -LC:/Qxt/lib/libQxtCore.dll.a
     LIBS += -LC:/Qxt/lib/libQxtGui.dll.a
-#    LIBS += -libQxtGui.dll.a
 }
 else:win32:CONFIG(debug, debug|release): {
     INCLUDEPATH += -LC:/Qxt/include
