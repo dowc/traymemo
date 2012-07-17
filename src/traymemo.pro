@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with TrayMemo.  If not, see <http://www.gnu.org/licenses/>.
 
-QT       += gui svg xml
+QT       += gui svg
 
 CONFIG  += qxt
 QXT     += gui
@@ -42,7 +42,11 @@ OTHER_FILES += \
 
 unix:!symbian {
     LIBS += -L/usr/local/Qxt/lib/ -lQxtGui
-    #INCLUDEPATH += /usr/local/Qxt/include/QxtGui/
+    INCLUDEPATH += . /usr/local/Qxt/include/QxtCore/ \
+                    /usr/local/Qxt/include/QxtGui/
+
+    target.path = /usr/bin
+    INSTALLS += target
 }
 
 win32:CONFIG(release, debug|release): {
