@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/traymemo.svg</file>
+        <file>images/traymemo.ico</file>
+    </qresource>
+</RCC>

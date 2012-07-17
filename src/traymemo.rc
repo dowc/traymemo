@@ -1,0 +1,3 @@
+IDI_ICON1	ICON	DISCARDABLE	"images/traymemo.ico"
+IDI_ICON2	ICON	DISCARDABLE	"images/traymemo_16x16x32.ico"
+DISCARDABLE manifest.xml
