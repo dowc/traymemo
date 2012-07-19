@@ -51,6 +51,7 @@ private slots:
     void showCurrentShortcuts();
     void moveToNextTab();
     void moveToPreviousTab();
+    void showChangeDialog();
 
 private:
     void readTextFromFile();
@@ -62,6 +63,7 @@ private:
     bool showUnsavedDialog(QString fileName);
     bool anyUnsavedDocuments();
     void setCurrentWindowTitle(QString fileName);
+    void assignShowHideShortCut(const QString value);
 
     QTabWidget *tabWidget;
     int proposedFileNameNumbers;
