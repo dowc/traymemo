@@ -1,6 +1,6 @@
 SetCompressor lzma
 Name "TrayMemo"
-OutFile "traymemo-0.6-setup.exe"
+OutFile "traymemo-0.67-setup.exe"
 InstallDir $PROGRAMFILES\TrayMemo
 Icon "..\src\images\traymemo.ico"
 LicenseData "..\COPYING"
@@ -27,7 +27,6 @@ File ..\..\traymemo-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Release\
 File QtGui4.dll
 File QtCore4.dll
 File QtSvg4.dll
-File QtXml4.dll
 File libQxtCore.a
 File QxtCore.dll
 File libQxtGui.a
@@ -54,7 +53,6 @@ delete $INSTDIR\traymemo.exe
 delete $INSTDIR\QtGui4.dll
 delete $INSTDIR\QtCore4.dll
 delete $INSTDIR\QtSvg4.dll
-delete $INSTDIR\QtXml4.dll
 delete $INSTDIR\imageformats\qsvg4.dll
 delete $INSTDIR\iconengines\qsvgicon4.dll
 delete $INSTDIR\libQxtCore.a
