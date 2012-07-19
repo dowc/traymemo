@@ -69,6 +69,7 @@ private:
     int proposedFileNameNumbers;
     QFile *currentFile;    
     TrayMemoTab *currentTextEdit;
+    QxtGlobalShortcut *shortCutShowHide;
 
 };
 

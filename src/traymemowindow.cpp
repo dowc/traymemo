@@ -30,7 +30,7 @@
 #include <QSettings>
 
 TrayMemoWindow::TrayMemoWindow()
-    :proposedFileNameNumbers(0)
+    :proposedFileNameNumbers(0), shortCutShowHide(NULL)
 {
 #ifndef QT_NO_DEBUG
     setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget);
@@ -79,6 +79,7 @@ TrayMemoWindow::~TrayMemoWindow()
 {
     delete tabWidget;
     delete currentFile;
+    delete shortCutShowHide;
 }
 
 void TrayMemoWindow::closeApplication()
@@ -120,7 +121,12 @@ void TrayMemoWindow::moveToNextTab()
 
 void TrayMemoWindow::assignShowHideShortCut(const QString value)
 {
-    QxtGlobalShortcut *shortCutShowHide;
+    if (shortCutShowHide)
+    {
+        delete shortCutShowHide;
+        shortCutShowHide = NULL;
+    }
+
     if (!value.isEmpty())
         shortCutShowHide = new QxtGlobalShortcut(QKeySequence(value), this);
     else
