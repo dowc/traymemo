@@ -25,7 +25,8 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    TrayMemoWindow window;    
+    app.setQuitOnLastWindowClosed(false);
+    TrayMemoWindow window;
     window.show();
     return app.exec();
 }

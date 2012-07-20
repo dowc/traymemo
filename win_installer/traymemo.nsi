@@ -1,11 +1,31 @@
 SetCompressor lzma
 Name "TrayMemo"
-OutFile "traymemo-0.67-setup.exe"
+OutFile "traymemo-0.72-setup.exe"
 InstallDir $PROGRAMFILES\TrayMemo
 Icon "..\src\images\traymemo.ico"
 LicenseData "..\COPYING"
 LicenseForceSelection checkbox "I agree"
 RequestExecutionLevel user
+
+# default section start
+Section
+ 
+    # call userInfo plugin to get user info.  The plugin puts the result in the stack
+    userInfo::getAccountType
+   
+    # pop the result from the stack into $0
+    pop $0
+ 
+    # compare the result with the string "Admin" to see if the user is admin.
+    # If match, jump 3 lines down.
+    strCmp $0 "Admin" +3
+ 
+    # if there is not a match, print message and return
+    messageBox MB_OK "Installation requires administrator rights"
+    return    
+ 
+# default section end
+SectionEnd
 
 Function .onInit
 System::Call 'kernel32::CreateMutexA(i 0, i 0, t "mutex-traymemo-installer") i .r1 ?e'
@@ -44,8 +64,6 @@ createShortCut "$SMPROGRAMS\TrayMemo\TrayMemo.lnk" "$INSTDIR\traymemo.exe"
 createShortCut "$DESKTOP\TrayMemo.lnk" "$INSTDIR\traymemo.exe"
 createShortCut "$SMPROGRAMS\TrayMemo\Uninstall TrayMemo.lnk" "$INSTDIR\uninstaller.exe"
 SectionEnd
-
-
 
 Section "Uninstall"
 SetShellVarContext all
