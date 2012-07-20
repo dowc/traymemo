@@ -166,6 +166,9 @@ void TrayMemoWindow::openFileOpenDialog()
 
 void TrayMemoWindow::saveTextToFile()
 {
+    if (!tabWidget->currentWidget())
+        return;
+
     QTemporaryFile tempFile;
     if (tempFile.open())
     {
@@ -394,28 +397,31 @@ void TrayMemoWindow::showAboutMessage()
 //    QMessageBox *about = new QMessageBox(this);
 //    about->setWindowTitle(tr("About Traymemo"));
 //    about->setText(tr("<b>TrayMemo</b><br>"
-//                      "Version 0.71<br>"
+//                      "Version 0.73<br>"
 //                      "Author: Markus Nolvi<br>"
 //                      "E-mail: markus.nolvi@gmail.com"));
 //    about->setDefaultButton(QMessageBox::Ok);
 //    about->exec();
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.72<br>"
+                                "Version 0.73<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }
 
 void TrayMemoWindow::showCurrentShortcuts()
 {
+    QSettings settings("Traymemo", "Traymemo");
+    QString currentSetting = settings.value("showhideshortcut").toString();
+
     QMessageBox::information(this, tr("Current shortcuts"),
-                             tr("Application to/from tray - Ctrl+E<br>"
+                             tr("Show/hide shortcut - %1<br>"
                                 "Create new file - Ctrl+N<br>"
                                 "Open existing file - Ctrl+O<br>"
                                 "Close current tab - Ctrl+W<br>"
                                 "Save current file - Ctrl+S<br>"
                                 "Move to next tab - Ctrl+Tab<br>"
-                                "Move to previous tab - Ctrl+Shift+Tab<br>"));
+                                "Move to previous tab - Ctrl+Shift+Tab<br>").arg(currentSetting));
 }
 
 void TrayMemoWindow::showChangeDialog()
@@ -439,8 +445,8 @@ void TrayMemoWindow::createTrayIcon()
     if (!QSystemTrayIcon::isSystemTrayAvailable())
         return;
 
-    QAction *minimizeAction = new QAction(tr("&Minimize"), this);
-    connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
+    QAction *minimizeMaximizeAction = new QAction(tr("&Minimize/Maximize"), this);
+    connect(minimizeMaximizeAction, SIGNAL(triggered()), this, SLOT(showHideWidget()));
 
     QAction *showShortCuts = new QAction(tr("&Shortcuts"), this);
     connect(showShortCuts, SIGNAL(triggered()), this, SLOT(showCurrentShortcuts()));
@@ -455,7 +461,7 @@ void TrayMemoWindow::createTrayIcon()
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 
     QMenu *trayIconMenu = new QMenu(this);
-    trayIconMenu->addAction(minimizeAction);
+    trayIconMenu->addAction(minimizeMaximizeAction);
     trayIconMenu->addAction(showShortCuts);
     trayIconMenu->addAction(changeShowHideShortCut);
     trayIconMenu->addAction(aboutAction);
