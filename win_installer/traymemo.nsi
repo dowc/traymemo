@@ -21,8 +21,8 @@ Section
     strCmp $0 "Admin" +3
  
     # if there is not a match, print message and return
-    messageBox MB_OK "Installation requires administrator rights"
-    return    
+    messageBox MB_OK "Installation requires administrator rights, aborting."
+    Abort
  
 # default section end
 SectionEnd
