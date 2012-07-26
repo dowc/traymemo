@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with TrayMemo.  If not, see <http://www.gnu.org/licenses/>.
 
+
 QT       += gui svg
 
 CONFIG  += qxt
