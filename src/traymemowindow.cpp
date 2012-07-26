@@ -30,8 +30,15 @@
 #include <QSettings>
 
 TrayMemoWindow::TrayMemoWindow()
-    :proposedFileNameNumbers(0), shortCutShowHide(NULL)
+    :proposedFileNameNumbers(0),
+     shortCutShowHide(NULL),
+     disallowedShortcuts(NULL)
 {
+#ifdef Q_WS_WIN
+    QSettings autoStartSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
+    autoStartSettings.setValue("traymemo.exe", QCoreApplication::applicationFilePath().replace('/','\\'));
+#endif
+
 #ifndef QT_NO_DEBUG
     setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget);
 #else
@@ -39,6 +46,8 @@ TrayMemoWindow::TrayMemoWindow()
                    | Qt::WindowStaysOnTopHint);
 #endif
     setFocusPolicy(Qt::NoFocus);
+
+    disallowedShortcuts << "Ctrl+N" << "Ctrl+O" << "Ctrl+S" << "Ctrl+W" << "Ctrl+Q" << "Ctrl+Tab" << "Ctrl+Shift+Tab";
 
     QShortcut *shortCutCreateNew = new QShortcut(QKeySequence("Ctrl+N"), this);
     QShortcut *shortCutSaveText = new QShortcut(QKeySequence("Ctrl+S"), this);
@@ -286,6 +295,7 @@ void TrayMemoWindow::createNewTab(QString fileName)
     tabWidget->setCurrentWidget(currentTextEdit);
     setCurrentWindowTitle(fileName);
     currentTextEdit->initCompleted();
+    currentTextEdit->setFocus();
 }
 
 void TrayMemoWindow::setCurrentWindowTitle(QString fileName)
@@ -381,6 +391,10 @@ void TrayMemoWindow::showHideWidget()
 
         QDialog::setVisible(true);
         QApplication::setActiveWindow(this);
+        if (currentTextEdit)
+            currentTextEdit->setFocus();
+        else
+            activateWindow();
     }
     else
     {
@@ -389,7 +403,6 @@ void TrayMemoWindow::showHideWidget()
 
         QDialog::setVisible(false);
     }
-
 }
 
 void TrayMemoWindow::showAboutMessage()
@@ -431,6 +444,16 @@ void TrayMemoWindow::showChangeDialog()
     bool ok;
     QString shortcut = QInputDialog::getText(this, tr("Define application show/hide shortcut"),
                                              tr("Shortcut (f.ex: Ctrl+E):"), QLineEdit::Normal, currentSetting, &ok);
+
+    if (disallowedShortcuts.contains(shortcut, Qt::CaseInsensitive))
+    {
+        QMessageBox::information(this, tr("Error occurred!"),
+                                    tr("Shortcut cannot be assigned.<br>"
+                                    "Selected shortcut %1 is already<br>"
+                                    "assigned to some other operation.<br>"
+                                    "Please select shortcut not already defined.<br>").arg(shortcut));
+        return;
+    }
 
     if (ok && !shortcut.isEmpty())
     {

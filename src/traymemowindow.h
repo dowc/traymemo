@@ -70,6 +70,7 @@ private:
     QFile *currentFile;    
     TrayMemoTab *currentTextEdit;
     QxtGlobalShortcut *shortCutShowHide;
+    QStringList disallowedShortcuts;
 
 };
 
