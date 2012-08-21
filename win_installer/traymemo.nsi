@@ -1,6 +1,6 @@
 SetCompressor lzma
 Name "TrayMemo"
-OutFile "traymemo-0.75-setup.exe"
+OutFile "traymemo-0.76-setup.exe"
 InstallDir $PROGRAMFILES\TrayMemo
 Icon "..\src\images\traymemo.ico"
 LicenseData "..\COPYING"
@@ -43,6 +43,7 @@ Page instfiles
 Section ""
 SetOutPath $INSTDIR
 SetShellVarContext all
+File RELEASE.txt
 File ..\..\traymemo-build-desktop-Qt_4_8_1_for_Desktop_-_MinGW__Qt_SDK__Release\src\release\traymemo.exe
 File QtGui4.dll
 File QtCore4.dll
@@ -61,6 +62,7 @@ writeUninstaller $INSTDIR\uninstaller.exe
 
 CreateDirectory "$SMPROGRAMS\TrayMemo"
 createShortCut "$SMPROGRAMS\TrayMemo\TrayMemo.lnk" "$INSTDIR\traymemo.exe"
+createShortCut "$SMPROGRAMS\TrayMemo\RELEASE.txt.lnk" "$INSTDIR\RELEASE.txt"
 createShortCut "$DESKTOP\TrayMemo.lnk" "$INSTDIR\traymemo.exe"
 createShortCut "$SMPROGRAMS\TrayMemo\Uninstall TrayMemo.lnk" "$INSTDIR\uninstaller.exe"
 SectionEnd
@@ -68,6 +70,7 @@ SectionEnd
 Section "Uninstall"
 SetShellVarContext all
 delete $INSTDIR\traymemo.exe
+delete $INSTDIR\RELEASE.txt
 delete $INSTDIR\QtGui4.dll
 delete $INSTDIR\QtCore4.dll
 delete $INSTDIR\QtSvg4.dll
@@ -82,6 +85,7 @@ delete $INSTDIR\libgcc_s_dw2-1.dll
 delete $INSTDIR\uninstaller.exe
 RMDir $INSTDIR
 delete "$SMPROGRAMS\TrayMemo\TrayMemo.lnk"
+delete "$SMPROGRAMS\TrayMemo\RELEASE.txt"
 delete "$DESKTOP\TrayMemo.lnk"
 delete "$SMPROGRAMS\TrayMemo\Uninstall TrayMemo.lnk"
 RMDir "$SMPROGRAMS\TrayMemo"
