@@ -39,12 +39,12 @@ TrayMemoWindow::TrayMemoWindow()
     autoStartSettings.setValue("traymemo.exe", QCoreApplication::applicationFilePath().replace('/','\\'));
 #endif
 
-#ifndef QT_NO_DEBUG
+//#ifndef QT_NO_DEBUG
     setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget);
-#else
-    setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget
-                   | Qt::WindowStaysOnTopHint);
-#endif
+//#else
+//    setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget
+//                   | Qt::WindowStaysOnTopHint);
+//#endif
     setFocusPolicy(Qt::NoFocus);
 
     disallowedShortcuts << "Ctrl+N" << "Ctrl+O" << "Ctrl+S" << "Ctrl+W" << "Ctrl+Q" << "Ctrl+Tab" << "Ctrl+Shift+Tab";
@@ -306,8 +306,7 @@ void TrayMemoWindow::setCurrentWindowTitle(QString fileName)
 
 QString TrayMemoWindow::stripPathFromFileName(QString fileName)
 {    
-    QFileInfo info(fileName);
-    return info.fileName();
+    return QFileInfo(fileName).fileName();
 }
 
 void TrayMemoWindow::closeCurrentTab()
@@ -391,17 +390,25 @@ void TrayMemoWindow::showHideWidget()
 
         QDialog::setVisible(true);
         QApplication::setActiveWindow(this);
+        activateWindow();
         if (currentTextEdit)
             currentTextEdit->setFocus();
-        else
-            activateWindow();
     }
     else
     {
-        QSettings settings("Traymemo", "Traymemo");
-        settings.setValue("geometry", saveGeometry());
-
-        QDialog::setVisible(false);
+        if (QApplication::activeWindow() == this)
+        {
+            QSettings settings("Traymemo", "Traymemo");
+            settings.setValue("geometry", saveGeometry());
+            QDialog::setVisible(false);
+        }
+        else
+        {
+            QApplication::setActiveWindow(this);
+            activateWindow();
+            if (currentTextEdit)
+                currentTextEdit->setFocus();
+        }
     }
 }
 
@@ -410,14 +417,14 @@ void TrayMemoWindow::showAboutMessage()
 //    QMessageBox *about = new QMessageBox(this);
 //    about->setWindowTitle(tr("About Traymemo"));
 //    about->setText(tr("<b>TrayMemo</b><br>"
-//                      "Version 0.75<br>"
+//                      "Version 0.76<br>"
 //                      "Author: Markus Nolvi<br>"
 //                      "E-mail: markus.nolvi@gmail.com"));
 //    about->setDefaultButton(QMessageBox::Ok);
 //    about->exec();
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.75<br>"
+                                "Version 0.76<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }
@@ -451,7 +458,7 @@ void TrayMemoWindow::showChangeDialog()
                                     tr("Shortcut cannot be assigned.<br>"
                                     "Selected shortcut %1 is already<br>"
                                     "assigned to some other operation.<br>"
-                                    "Please select shortcut not already defined.<br>").arg(shortcut));
+                                    "Please select some other shortcut.<br>").arg(shortcut));
         return;
     }
 
