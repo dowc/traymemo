@@ -46,9 +46,9 @@ TrayMemoWindow::TrayMemoWindow()
 //#endif
     setFocusPolicy(Qt::NoFocus);
 
-    disallowedShortcuts << "Ctrl+N" << "Ctrl+O" << "Ctrl+S" << "Ctrl+W" << "Ctrl+Q" << "Ctrl+Tab" << "Ctrl+Shift+Tab";
+    disallowedShortcuts << "Ctrl+T" << "Ctrl+O" << "Ctrl+S" << "Ctrl+W" << "Ctrl+Q" << "Ctrl+Tab" << "Ctrl+Shift+Tab";
 
-    QShortcut *shortCutCreateNew = new QShortcut(QKeySequence("Ctrl+N"), this);
+    QShortcut *shortCutCreateNew = new QShortcut(QKeySequence("Ctrl+T"), this);
     QShortcut *shortCutSaveText = new QShortcut(QKeySequence("Ctrl+S"), this);
     QShortcut *shortCutOpenExisting = new QShortcut(QKeySequence("Ctrl+O"), this);
     QShortcut *shortCutCloseApp = new QShortcut(QKeySequence("Ctrl+Q"), this);
