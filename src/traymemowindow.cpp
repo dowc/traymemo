@@ -31,8 +31,7 @@
 
 TrayMemoWindow::TrayMemoWindow()
     :proposedFileNameNumbers(0),
-     shortCutShowHide(NULL),
-     disallowedShortcuts(NULL)
+     shortCutShowHide(NULL)
 {
 #ifdef Q_WS_WIN
     QSettings autoStartSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
@@ -136,10 +135,15 @@ void TrayMemoWindow::assignShowHideShortCut(const QString value)
         shortCutShowHide = NULL;
     }
 
-    if (!value.isEmpty())
-        shortCutShowHide = new QxtGlobalShortcut(QKeySequence(value), this);
-    else
-        shortCutShowHide = new QxtGlobalShortcut(QKeySequence("Ctrl+E"), this);
+    QString shortcut = value;
+
+    if (value.isEmpty())
+        shortcut = "Ctrl+E";
+
+    shortCutShowHide = new QxtGlobalShortcut(QKeySequence(shortcut), this);
+
+    QSettings settings("Traymemo", "Traymemo");
+    settings.setValue("showhideshortcut", shortcut);
 
     QObject::connect(shortCutShowHide, SIGNAL(activated()), this, SLOT(showHideWidget()));
 }
@@ -449,24 +453,34 @@ void TrayMemoWindow::showChangeDialog()
     QSettings settings("Traymemo", "Traymemo");
     QString currentSetting = settings.value("showhideshortcut").toString();
     bool ok;
-    QString shortcut = QInputDialog::getText(this, tr("Define application show/hide shortcut"),
-                                             tr("Shortcut (f.ex: Ctrl+E):"), QLineEdit::Normal, currentSetting, &ok);
+    QString shortcut = QInputDialog::getText(this, tr("Define show/hide shortcut"),
+                                                   tr("Shortcut (f.ex: Ctrl+E):                                       "),
+                                                   QLineEdit::Normal,
+                                                   currentSetting, &ok);
 
-    if (disallowedShortcuts.contains(shortcut, Qt::CaseInsensitive))
+    if (ok)
     {
-        QMessageBox::information(this, tr("Error occurred!"),
-                                    tr("Shortcut cannot be assigned.<br>"
-                                    "Selected shortcut %1 is already<br>"
-                                    "assigned to some other operation.<br>"
-                                    "Please select some other shortcut.<br>").arg(shortcut));
-        return;
-    }
+        if (disallowedShortcuts.contains(shortcut, Qt::CaseInsensitive))
+        {
+            QMessageBox::information(this, tr("Error occurred"),
+                                        tr("Shortcut cannot be assigned.<br>"
+                                        "Selected shortcut %1 is already "
+                                        "assigned to some other operation.<br>"
+                                        "Please select some other shortcut.<br>").arg(shortcut));
+            return;
+        }
 
-    if (ok && !shortcut.isEmpty())
-    {
-        QSettings settings("Traymemo", "Traymemo");
-        settings.setValue("showhideshortcut", shortcut);
-        assignShowHideShortCut(shortcut);
+        if (!shortcut.isEmpty())
+        {
+            assignShowHideShortCut(shortcut);
+        }
+        else
+        {
+            QMessageBox::information(this, tr("Error occurred!"),
+                                        tr("Cannot assign empty shortcut.<br>"));
+
+            return;
+        }
     }
 }
 
