@@ -31,6 +31,7 @@
 
 TrayMemoWindow::TrayMemoWindow()
     :proposedFileNameNumbers(0),
+     currentTextEdit(NULL),
      shortCutShowHide(NULL)
 {
 #ifdef Q_WS_WIN
