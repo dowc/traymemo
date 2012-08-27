@@ -1,0 +1,19 @@
+Version 0.79 - 23/08/2012
+===========================
+- Fixed crash in Linux
+- Fixed issue where wrong shortcut was shown in "shortcut dialog"
+
+Version 0.77 - 23/08/2012
+===========================
+- Fixed couple show/hide shortcut dialog related bugs
+- Changed new tab creation shortcut to "Ctrl+T" to be consistent with browsers
+
+Version 0.76 - 22/08/2012
+===========================
+- Fix for issue where TextArea didn't get input focus when enabling widget from SystemTray
+- Changed show/hide logic - Now widget only hides when it's topmost focused widget otherwise it just goes background
+
+Version 0.75 - 26/07/2012
+===========================
+- Changed application to start up as minimized in SystemTray
+- Added prevention to override fixed shortcuts when defining show/hide shortcut
