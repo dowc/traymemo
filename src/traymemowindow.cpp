@@ -167,10 +167,12 @@ void TrayMemoWindow::openFileSaveDialog()
 
 void TrayMemoWindow::openFileOpenDialog()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::homePath(), tr("Text files (*.txt *.config)"));
-    if (fileName.isEmpty())
+    QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open File(s)"), QDir::homePath(), tr("Text files (*.txt *.config)"));
+    if (fileNames.isEmpty())
         return;
-    createNewTab(fileName);
+
+    foreach(QString fileName, fileNames)
+        createNewTab(fileName);
 }
 
 void TrayMemoWindow::saveTextToFile()
@@ -503,7 +505,7 @@ void TrayMemoWindow::createTrayIcon()
     QMenu *trayIconMenu = new QMenu(this);
     trayIconMenu->addAction(minimizeMaximizeAction);
     trayIconMenu->addAction(showShortCuts);
-    trayIconMenu->addAction(changeShowHideShortCut);
+    trayIconMenu->addAction(changeShowHideShortCut);    
     trayIconMenu->addAction(aboutAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
