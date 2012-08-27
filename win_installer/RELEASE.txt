@@ -1,5 +1,6 @@
-Version 0.79 - 23/08/2012
+Version 0.79 - 27/08/2012
 ===========================
+- Implemented "multiple file support" for file opening
 - Fixed crash in Linux
 - Fixed issue where wrong shortcut was shown in "shortcut dialog"
 
