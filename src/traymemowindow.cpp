@@ -39,12 +39,7 @@ TrayMemoWindow::TrayMemoWindow()
     autoStartSettings.setValue("traymemo.exe", QCoreApplication::applicationFilePath().replace('/','\\'));
 #endif
 
-//#ifndef QT_NO_DEBUG
     setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget);
-//#else
-//    setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget
-//                   | Qt::WindowStaysOnTopHint);
-//#endif
     setFocusPolicy(Qt::NoFocus);
 
     disallowedShortcuts << "Ctrl+T" << "Ctrl+O" << "Ctrl+S" << "Ctrl+W" << "Ctrl+Q" << "Ctrl+Tab" << "Ctrl+Shift+Tab";
