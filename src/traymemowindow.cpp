@@ -441,7 +441,7 @@ void TrayMemoWindow::showCurrentShortcuts()
 
     QMessageBox::information(this, tr("Current shortcuts"),
                              tr("Show/hide shortcut - %1<br>"
-                                "Create new file - Ctrl+N<br>"
+                                "Create new file - Ctrl+T<br>"
                                 "Open existing file - Ctrl+O<br>"
                                 "Close current tab - Ctrl+W<br>"
                                 "Save current file - Ctrl+S<br>"
