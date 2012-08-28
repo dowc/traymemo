@@ -197,20 +197,19 @@ void TrayMemoWindow::saveTextToFile()
                QErrorMessage errorMessage;
                errorMessage.showMessage(QString("Failed to remove current file, %1").arg(currentFile->errorString()));
                errorMessage.exec();
+               return;
            }
-           else
-           {
-               if (!QFile::copy(tempFileName, currentFileName))
-               {
-                   QErrorMessage errorMessage;
-                   errorMessage.showMessage("Failed to replace current file!");
-                   errorMessage.exec();
-               }
-               else
-               {
-                   currentTextEdit->setAsSaved();
-               }
-           }
+        }
+
+        if (!QFile::copy(tempFileName, currentFileName))
+        {
+           QErrorMessage errorMessage;
+           errorMessage.showMessage("Failed to copy current file!");
+           errorMessage.exec();
+        }
+        else
+        {
+           currentTextEdit->setAsSaved();
         }
     }
     else
@@ -419,14 +418,14 @@ void TrayMemoWindow::showAboutMessage()
 //    QMessageBox *about = new QMessageBox(this);
 //    about->setWindowTitle(tr("About Traymemo"));
 //    about->setText(tr("<b>TrayMemo</b><br>"
-//                      "Version 0.79<br>"
+//                      "Version 0.80<br>"
 //                      "Author: Markus Nolvi<br>"
 //                      "E-mail: markus.nolvi@gmail.com"));
 //    about->setDefaultButton(QMessageBox::Ok);
 //    about->exec();
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.79<br>"
+                                "Version 0.80<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }
