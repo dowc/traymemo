@@ -1,3 +1,8 @@
+Version 0.80 - 28/08/2012
+===========================
+- Implemented logic to show asterisk in tab in title pane when file is changed but not saved
+- Fixed bug in file saving
+
 Version 0.79 - 27/08/2012
 ===========================
 - Implemented "multiple file support" for file opening
