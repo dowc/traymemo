@@ -264,6 +264,18 @@ void TrayMemoWindow::openFile(QString fileName)
     currentFile->close();
 }
 
+void TrayMemoWindow::updateAsterisk()
+{
+    int index = tabWidget->currentIndex();
+    QString fileName = currentTextEdit->getFileName();
+    if (!currentTextEdit->isSaved())
+        fileName.append("*");
+    else
+        fileName.remove("*");
+    tabWidget->setTabText(index, stripPathFromFileName(fileName));
+    setCurrentWindowTitle(fileName);
+}
+
 void TrayMemoWindow::createNewTab(QString fileName)
 {
     int count = tabWidget->count();

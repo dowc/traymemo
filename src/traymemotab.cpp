@@ -25,14 +25,18 @@
 TrayMemoTab::TrayMemoTab(const QString &fileName, QWidget *parent = 0)
     :QTextEdit(parent), fileSaved(true), initialized(false), fileName(fileName)
 {
-    QObject::connect(this, SIGNAL(textChanged()), this, SLOT(markAsNotSaved()));
+    QObject::connect(this, SIGNAL(textChanged()), this, SLOT(setAsNotSaved()));
+    QObject::connect(this, SIGNAL(updateAsterisk()), parent, SLOT(updateAsterisk()));
     setAcceptRichText(false);
 }
 
-void TrayMemoTab::markAsNotSaved()
+void TrayMemoTab::setAsNotSaved()
 {
-    if (initialized)
-        fileSaved = false;
+    if (!initialized)
+        return;
+
+    fileSaved = false;
+    emit updateAsterisk();
 }
 
 bool TrayMemoTab::isSaved() const
@@ -43,6 +47,7 @@ bool TrayMemoTab::isSaved() const
 void TrayMemoTab::setAsSaved()
 {
     fileSaved = true;
+    emit updateAsterisk();
 }
 
 void TrayMemoTab::initCompleted()
