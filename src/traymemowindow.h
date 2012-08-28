@@ -52,6 +52,7 @@ private slots:
     void moveToNextTab();
     void moveToPreviousTab();
     void showChangeDialog();
+    void updateAsterisk();
 
 private:
     void readTextFromFile();

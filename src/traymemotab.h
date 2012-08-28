@@ -36,7 +36,10 @@ public:
     QString getFileName();
 
 private slots:
-    void markAsNotSaved();
+    void setAsNotSaved();
+
+signals:
+    void updateAsterisk();
 
 private:
     bool fileSaved;
