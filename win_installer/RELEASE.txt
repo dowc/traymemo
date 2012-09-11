@@ -1,3 +1,8 @@
+Version 0.81 - 12/09/2012
+===========================
+- Added RequestExecutionLevel admin check in installer script
+- Fixed nasty bug in file saving
+
 Version 0.80 - 28/08/2012
 ===========================
 - Implemented logic to show asterisk in tab in title pane when file is changed but not saved

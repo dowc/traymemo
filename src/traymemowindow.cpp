@@ -437,14 +437,14 @@ void TrayMemoWindow::showAboutMessage()
 //    QMessageBox *about = new QMessageBox(this);
 //    about->setWindowTitle(tr("About Traymemo"));
 //    about->setText(tr("<b>TrayMemo</b><br>"
-//                      "Version 0.80<br>"
+//                      "Version 0.81<br>"
 //                      "Author: Markus Nolvi<br>"
 //                      "E-mail: markus.nolvi@gmail.com"));
 //    about->setDefaultButton(QMessageBox::Ok);
 //    about->exec();
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.80<br>"
+                                "Version 0.81<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }
