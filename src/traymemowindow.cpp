@@ -106,11 +106,12 @@ void TrayMemoWindow::closeApplication()
 void TrayMemoWindow::changeCurrentTab(int index)
 {
     if (index < 0)
-        return
+        return;
 
     tabWidget->setCurrentIndex(index);
     setCurrentWindowTitle(tabWidget->tabToolTip(index));
     currentTextEdit = dynamic_cast<TrayMemoTab*>(tabWidget->currentWidget());
+    currentFile->setFileName(currentTextEdit->getFileName());
     currentTextEdit->setFocus();
 }
 
@@ -177,8 +178,12 @@ void TrayMemoWindow::openFileOpenDialog()
 
 void TrayMemoWindow::saveTextToFile()
 {
-    if (!tabWidget->currentWidget())
+    if (tabWidget->currentWidget() == NULL)
         return;
+
+    QString currentFileFileName = QDir::toNativeSeparators(currentFile->fileName());
+
+    Q_ASSERT(currentTextEdit->getFileName() == currentFileFileName);
 
     QTemporaryFile tempFile;
     if (tempFile.open())
@@ -220,12 +225,12 @@ void TrayMemoWindow::saveTextToFile()
     }
 }
 
-void TrayMemoWindow::readTextFromFile()
-{
-    currentTextEdit->clear();
-    QTextStream is(currentFile);
-    currentTextEdit->setPlainText(is.readAll());
-}
+//void TrayMemoWindow::readTextFromFile()
+//{
+//    currentTextEdit->clear();
+//    QTextStream is(currentFile);
+//    currentTextEdit->setPlainText(is.readAll());
+//}
 
 void TrayMemoWindow::createNewFile(QString fileName)
 {
@@ -278,6 +283,7 @@ void TrayMemoWindow::updateAsterisk()
 
 void TrayMemoWindow::createNewTab(QString fileName)
 {
+    //Check if selected file is already opened
     int count = tabWidget->count();
     while(count > 0)
     {
@@ -302,6 +308,7 @@ void TrayMemoWindow::createNewTab(QString fileName)
         createNewFile(fileName);
         currentTextEdit = page;
     }
+
     QString name = stripPathFromFileName(fileName);
     int index = tabWidget->addTab(page,name);
     tabWidget->setTabToolTip(index, fileName);
