@@ -28,6 +28,7 @@
 #include <QIODevice>
 #include <QMessageBox>
 #include <QSettings>
+#include <QDebug>
 
 TrayMemoWindow::TrayMemoWindow()
     :proposedFileNameNumbers(0),
@@ -60,7 +61,7 @@ TrayMemoWindow::TrayMemoWindow()
     QObject::connect(shortCutCycleToPreviousTab, SIGNAL(activated()), this, SLOT(moveToPreviousTab()));
 
     tabWidget = new QTabWidget(this);
-    currentFile = new QFile(this);
+
     QObject::connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeCurrentTab(int)));
     setFocusProxy(tabWidget);
 
@@ -82,7 +83,6 @@ TrayMemoWindow::TrayMemoWindow()
 TrayMemoWindow::~TrayMemoWindow()
 {
     delete tabWidget;
-    delete currentFile;
     delete shortCutShowHide;
 }
 
@@ -111,7 +111,6 @@ void TrayMemoWindow::changeCurrentTab(int index)
     tabWidget->setCurrentIndex(index);
     setCurrentWindowTitle(tabWidget->tabToolTip(index));
     currentTextEdit = dynamic_cast<TrayMemoTab*>(tabWidget->currentWidget());
-    currentFile->setFileName(currentTextEdit->getFileName());
     currentTextEdit->setFocus();
 }
 
@@ -178,59 +177,86 @@ void TrayMemoWindow::openFileOpenDialog()
 
 void TrayMemoWindow::saveTextToFile()
 {
+    QString filename = currentTextEdit->getFileName();
+    qDebug() << "Saving of file %s started" << filename;
     if (tabWidget->currentWidget() == NULL)
         return;
 
-    QString currentFileFileName = QDir::toNativeSeparators(currentFile->fileName());
-
-    Q_ASSERT(currentTextEdit->getFileName() == currentFileFileName);
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
 
     QTemporaryFile tempFile;
     if (tempFile.open())
     {
+        qDebug("Temp file created");
         QTextStream os(&tempFile);
         os << currentTextEdit->toPlainText();
-
+        qDebug("Text written to stream");
         const QString tempFileName = tempFile.fileName();
         tempFile.close();
 
-        QString currentFileName = currentFile->fileName();
+        QString currentFileName = currentTextEdit->getFileName();
         if (QFile::exists(currentFileName))
         {
-           if (!QFile::remove(currentFileName))
+           qDebug("File exists...");
+           if (QFile::remove(currentFileName))
            {
+               qDebug("File removed successfully...");
+           }
+           else
+           {
+               qDebug("File removal failed...");
                QErrorMessage errorMessage;
-               errorMessage.showMessage(QString("Failed to remove current file, %1").arg(currentFile->errorString()));
+               errorMessage.showMessage("Failed to remove current file");
                errorMessage.exec();
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
                return;
            }
         }
 
-        if (!QFile::copy(tempFileName, currentFileName))
+        if (QFile::copy(tempFileName, currentFileName))
         {
-           QErrorMessage errorMessage;
-           errorMessage.showMessage("Failed to copy current file!");
-           errorMessage.exec();
+            currentTextEdit->setAsSaved();
+            qDebug("File replaced successfully...");
+
         }
         else
         {
-           currentTextEdit->setAsSaved();
+            qDebug("File replacing failed...");
+            QErrorMessage errorMessage;
+            errorMessage.showMessage("Failed to copy current file!");
+            errorMessage.exec();
         }
     }
     else
     {
+        qDebug("Temp file creation failed...");
         QErrorMessage errorMessage;
         errorMessage.showMessage("Failed to create temp file!");
         errorMessage.exec();
     }
+
+    qDebug() << "Saving of file %s completed succesfully" << filename;
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
 }
 
-//void TrayMemoWindow::readTextFromFile()
-//{
-//    currentTextEdit->clear();
-//    QTextStream is(currentFile);
-//    currentTextEdit->setPlainText(is.readAll());
-//}
+void TrayMemoWindow::readTextFromFile(QFile &file)
+{
+    QTextStream is(&file);
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
+    currentTextEdit->clear();
+    currentTextEdit->setPlainText(is.readAll());
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+}
 
 void TrayMemoWindow::createNewFile(QString fileName)
 {
@@ -240,10 +266,7 @@ void TrayMemoWindow::createNewFile(QString fileName)
         QErrorMessage errorMessage;
         errorMessage.showMessage("Specified file could not be created!");
         errorMessage.exec();
-    }
-
-    currentFile->setFileName(fileName);
-    currentFile->close();
+    }    
 }
 
 void TrayMemoWindow::openFile(QString fileName)
@@ -255,18 +278,8 @@ void TrayMemoWindow::openFile(QString fileName)
         errorMessage.showMessage("Specified file could not be opened!");
         errorMessage.exec();
     }
-    QTextStream is(&file);
-#ifndef QT_NO_CURSOR
-     QApplication::setOverrideCursor(Qt::WaitCursor);
- #endif
-     currentTextEdit->clear();
-     currentTextEdit->setPlainText(is.readAll());
- #ifndef QT_NO_CURSOR
-     QApplication::restoreOverrideCursor();
- #endif
 
-    currentFile->setFileName(file.fileName());
-    currentFile->close();
+    readTextFromFile(file);
 }
 
 void TrayMemoWindow::updateAsterisk()
@@ -295,19 +308,14 @@ void TrayMemoWindow::createNewTab(QString fileName)
         --count;
     }
 
-    TrayMemoTab *page = new TrayMemoTab(fileName, this);
+    TrayMemoTab *page = new TrayMemoTab(QDir::toNativeSeparators(fileName), this);
+    currentTextEdit = page;
 
     QFile file(fileName);
-    if (file.exists())
-    {
-        currentTextEdit = page;
+    if(file.exists())
         openFile(fileName);
-    }
     else
-    {
         createNewFile(fileName);
-        currentTextEdit = page;
-    }
 
     QString name = stripPathFromFileName(fileName);
     int index = tabWidget->addTab(page,name);
@@ -437,14 +445,14 @@ void TrayMemoWindow::showAboutMessage()
 //    QMessageBox *about = new QMessageBox(this);
 //    about->setWindowTitle(tr("About Traymemo"));
 //    about->setText(tr("<b>TrayMemo</b><br>"
-//                      "Version 0.81<br>"
+//                      "Version 0.82<br>"
 //                      "Author: Markus Nolvi<br>"
 //                      "E-mail: markus.nolvi@gmail.com"));
 //    about->setDefaultButton(QMessageBox::Ok);
 //    about->exec();
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.81<br>"
+                                "Version 0.82<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }
