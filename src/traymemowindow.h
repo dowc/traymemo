@@ -55,7 +55,7 @@ private slots:
     void updateAsterisk();
 
 private:
-    void readTextFromFile();
+    void readTextFromFile(QFile &file);
     void createTrayIcon();
     void createNewTab(QString fileName);
     void createNewFile(QString fileName);
