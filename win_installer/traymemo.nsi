@@ -1,6 +1,6 @@
 SetCompressor lzma
 Name "TrayMemo"
-OutFile "traymemo-0.82-setup.exe"
+OutFile "traymemo-0.83-setup.exe"
 InstallDir $PROGRAMFILES\TrayMemo
 Icon "..\src\images\traymemo.ico"
 LicenseData "..\COPYING"
