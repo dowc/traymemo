@@ -1,6 +1,10 @@
+Version 0.83 - 31/10/2012
+===========================
+- Implemented logic to restore opened tabs from previous session
+
 Version 0.82 - 13/09/2012
 ===========================
--Refactored saving logic, hopefully it now works
+- Refactored saving logic, hopefully it now works
 
 Version 0.81 - 12/09/2012
 ===========================

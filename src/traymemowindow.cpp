@@ -78,6 +78,7 @@ TrayMemoWindow::TrayMemoWindow()
     QSettings settings("Traymemo", "Traymemo");
     restoreGeometry(settings.value("geometry").toByteArray());
     assignShowHideShortCut(settings.value("showhideshortcut").toString());
+    restorePreviousSessionTabs();
 }
 
 TrayMemoWindow::~TrayMemoWindow()
@@ -99,6 +100,7 @@ void TrayMemoWindow::closeApplication()
         anyUnsavedDocuments();
         QSettings settings("Traymemo", "Traymemo");
         settings.setValue("geometry", saveGeometry());
+        saveSessionTabs();
         QCoreApplication::quit();
     }
 }
@@ -121,6 +123,43 @@ void TrayMemoWindow::moveToNextTab()
         tabWidget->setCurrentIndex(index + 1);
     else
         tabWidget->setCurrentIndex(0);
+}
+
+void TrayMemoWindow::restorePreviousSessionTabs()
+{
+    QMap<int, QString> map;
+
+    QSettings settings("Traymemo", "Traymemo");
+    settings.beginGroup("savedtabs");
+    QStringList keys = settings.childKeys();
+    foreach (QString key, keys) {
+         map[settings.value(key).toInt()] = key;
+    }
+    settings.endGroup();
+
+    foreach (QString value, map.values())
+        createNewTab(value);
+}
+
+void TrayMemoWindow::saveSessionTabs() const
+{
+    int count = tabWidget->count();
+    QMap<QString, int> map;
+    while(count>0)
+    {
+        map[tabWidget->tabToolTip(count-1)] = count-1;
+        --count;
+    }
+
+    QSettings settings("Traymemo", "Traymemo");
+    settings.beginGroup("savedtabs");
+    settings.remove("");
+    QMap<QString, int>::const_iterator i = map.constBegin();
+    while (i != map.constEnd()) {
+         settings.setValue(i.key(), i.value());
+         ++i;
+     }
+    settings.endGroup();
 }
 
 void TrayMemoWindow::assignShowHideShortCut(const QString value)
@@ -445,14 +484,14 @@ void TrayMemoWindow::showAboutMessage()
 //    QMessageBox *about = new QMessageBox(this);
 //    about->setWindowTitle(tr("About Traymemo"));
 //    about->setText(tr("<b>TrayMemo</b><br>"
-//                      "Version 0.82<br>"
+//                      "Version 0.83<br>"
 //                      "Author: Markus Nolvi<br>"
 //                      "E-mail: markus.nolvi@gmail.com"));
 //    about->setDefaultButton(QMessageBox::Ok);
 //    about->exec();
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.82<br>"
+                                "Version 0.83<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }

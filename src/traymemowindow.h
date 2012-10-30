@@ -65,6 +65,8 @@ private:
     bool anyUnsavedDocuments();
     void setCurrentWindowTitle(QString fileName);
     void assignShowHideShortCut(const QString value);
+    void saveSessionTabs() const;
+    void restorePreviousSessionTabs();
 
     QTabWidget *tabWidget;
     int proposedFileNameNumbers;
