@@ -1,6 +1,6 @@
 SetCompressor lzma
 Name "TrayMemo"
-OutFile "traymemo-0.83-setup.exe"
+OutFile "traymemo-0.84-setup.exe"
 InstallDir $PROGRAMFILES\TrayMemo
 Icon "..\src\images\traymemo.ico"
 LicenseData "..\COPYING"
@@ -23,9 +23,33 @@ Section
     # if there is not a match, print message and return
     messageBox MB_OK "Installation requires administrator rights, aborting."
     Abort
- 
+	
+	call CheckIfInstalled
 # default section end
 SectionEnd
+
+Function CheckIfInstalled
+
+IfFileExists "$INSTDIR\traymemo.exe" Ask_Question
+Goto INSTALL
+
+Ask_Question:
+MessageBox MB_YESNO "You have this program \
+already installed. You have to remove \
+it first. Uninstall now?" \
+IDYES UNINSTALL IDNO ABORT
+
+ABORT:
+Abort
+
+UNINSTALL:
+ExecWait '"$INSTDIR\Uninstaller.exe"'
+messageBox MB_OK "Traymemo uninstalled successfully."
+Quit
+
+INSTALL:
+
+FunctionEnd
 
 Function .onInit
 System::Call 'kernel32::CreateMutexA(i 0, i 0, t "mutex-traymemo-installer") i .r1 ?e'
@@ -83,9 +107,11 @@ delete $INSTDIR\QxtGui.dll
 delete $INSTDIR\mingwm10.dll
 delete $INSTDIR\libgcc_s_dw2-1.dll
 delete $INSTDIR\uninstaller.exe
+RMDir $INSTDIR\imageformats
+RMDir $INSTDIR\iconengines
 RMDir $INSTDIR
 delete "$SMPROGRAMS\TrayMemo\TrayMemo.lnk"
-delete "$SMPROGRAMS\TrayMemo\RELEASE.txt"
+delete "$SMPROGRAMS\TrayMemo\RELEASE.txt.lnk"
 delete "$DESKTOP\TrayMemo.lnk"
 delete "$SMPROGRAMS\TrayMemo\Uninstall TrayMemo.lnk"
 RMDir "$SMPROGRAMS\TrayMemo"

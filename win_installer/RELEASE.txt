@@ -1,3 +1,9 @@
+Version 0.84 - 6/11/2012
+===========================
+- Implemented logic to query for saving the unsaved tabs on system shutdown
+- Implemented logic to save settings on system shutdown
+- Implemented installer to check if traymemo is already installed and opting for uninstallation
+
 Version 0.83 - 31/10/2012
 ===========================
 - Implemented logic to restore opened tabs from previous session
