@@ -38,6 +38,9 @@ public:
     TrayMemoWindow();
     ~TrayMemoWindow();
 
+public slots:
+    void commitData(QSessionManager &manager);
+
 private slots:    
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void showAboutMessage();
@@ -67,6 +70,9 @@ private:
     void assignShowHideShortCut(const QString value);
     void saveSessionTabs() const;
     void restorePreviousSessionTabs();
+    void SaveUnsavedDocuments();
+    void queryForUnsavedDocuments();
+    void saveAppSettings();
 
     QTabWidget *tabWidget;
     int proposedFileNameNumbers;
