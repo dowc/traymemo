@@ -79,12 +79,31 @@ TrayMemoWindow::TrayMemoWindow()
     restoreGeometry(settings.value("geometry").toByteArray());
     assignShowHideShortCut(settings.value("showhideshortcut").toString());
     restorePreviousSessionTabs();
+    QObject::connect(qApp, SIGNAL(commitDataRequest(QSessionManager&)), this,
+                     SLOT(commitData(QSessionManager &)),Qt::DirectConnection);
 }
 
 TrayMemoWindow::~TrayMemoWindow()
 {
     delete tabWidget;
     delete shortCutShowHide;
+}
+
+void TrayMemoWindow::commitData(QSessionManager &manager)
+{
+    qDebug() << "commitData called";
+    if (manager.allowsInteraction())
+    {
+        queryForUnsavedDocuments();
+        saveAppSettings();
+        manager.release();
+        qDebug() << "documents & settings saved";
+    }
+    else
+    {
+        saveAppSettings();
+        qDebug() << "only settings saved";
+    }
 }
 
 void TrayMemoWindow::closeApplication()
@@ -97,11 +116,33 @@ void TrayMemoWindow::closeApplication()
     int result = msgBox.exec();
     if (result == QMessageBox::Ok)
     {
-        anyUnsavedDocuments();
-        QSettings settings("Traymemo", "Traymemo");
-        settings.setValue("geometry", saveGeometry());
-        saveSessionTabs();
+        queryForUnsavedDocuments();
+        saveAppSettings();
         QCoreApplication::quit();
+    }
+}
+
+void TrayMemoWindow::saveAppSettings()
+{
+    QSettings settings("Traymemo", "Traymemo");
+    settings.setValue("geometry", saveGeometry());
+    saveSessionTabs();
+}
+
+void TrayMemoWindow::queryForUnsavedDocuments()
+{
+    if (anyUnsavedDocuments())
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowFlags(Qt::WindowStaysOnTopHint);
+        msgBox.setText("You have unsaved documents. Do you want to save them before quitting?");
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        int result = msgBox.exec();
+        if (result == QMessageBox::Ok)
+        {
+            SaveUnsavedDocuments();
+        }
     }
 }
 
@@ -426,12 +467,27 @@ bool TrayMemoWindow::anyUnsavedDocuments()
         currentTextEdit = dynamic_cast<TrayMemoTab*>(tabWidget->widget(count-1));
         if (!currentTextEdit->isSaved())
         {
-            showUnsavedDialog(currentTextEdit->getFileName());
+            //showUnsavedDialog(currentTextEdit->getFileName());
             anySaves = true;
         }
         --count;
     }
     return anySaves;
+}
+
+void TrayMemoWindow::SaveUnsavedDocuments()
+{
+    int count = tabWidget->count();
+    while(count > 0)
+    {
+        tabWidget->setCurrentIndex(count-1);
+        currentTextEdit = dynamic_cast<TrayMemoTab*>(tabWidget->widget(count-1));
+        if (!currentTextEdit->isSaved())
+        {
+            showUnsavedDialog(currentTextEdit->getFileName());
+        }
+        --count;
+    }
 }
 
 void TrayMemoWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -484,14 +540,14 @@ void TrayMemoWindow::showAboutMessage()
 //    QMessageBox *about = new QMessageBox(this);
 //    about->setWindowTitle(tr("About Traymemo"));
 //    about->setText(tr("<b>TrayMemo</b><br>"
-//                      "Version 0.83<br>"
+//                      "Version 0.84<br>"
 //                      "Author: Markus Nolvi<br>"
 //                      "E-mail: markus.nolvi@gmail.com"));
 //    about->setDefaultButton(QMessageBox::Ok);
 //    about->exec();
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.83<br>"
+                                "Version 0.84<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: markus.nolvi@gmail.com"));
 }
