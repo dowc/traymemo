@@ -1,3 +1,7 @@
+Version 0.85 - 15/02/2013
+===========================
+- Fixed issue with newly created tab not being saved to control state
+
 Version 0.84 - 6/11/2012
 ===========================
 - Implemented logic to query for saving the unsaved tabs on system shutdown
