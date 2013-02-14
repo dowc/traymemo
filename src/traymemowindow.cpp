@@ -35,9 +35,11 @@ TrayMemoWindow::TrayMemoWindow()
      currentTextEdit(NULL),
      shortCutShowHide(NULL)
 {
+#ifdef QT_NO_DEBUG
 #ifdef Q_WS_WIN
     QSettings autoStartSettings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
     autoStartSettings.setValue("traymemo.exe", QCoreApplication::applicationFilePath().replace('/','\\'));
+#endif
 #endif
 
     setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget);
@@ -61,6 +63,7 @@ TrayMemoWindow::TrayMemoWindow()
     QObject::connect(shortCutCycleToPreviousTab, SIGNAL(activated()), this, SLOT(moveToPreviousTab()));
 
     tabWidget = new QTabWidget(this);
+    tabWidget->setUsesScrollButtons(false);
 
     QObject::connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeCurrentTab(int)));
     setFocusProxy(tabWidget);
@@ -197,6 +200,7 @@ void TrayMemoWindow::saveSessionTabs() const
     settings.remove("");
     QMap<QString, int>::const_iterator i = map.constBegin();
     while (i != map.constEnd()) {
+         qDebug() << i.key() << ": " << i.value() << endl;
          settings.setValue(i.key(), i.value());
          ++i;
      }
@@ -399,7 +403,7 @@ void TrayMemoWindow::createNewTab(QString fileName)
 
     QString name = stripPathFromFileName(fileName);
     int index = tabWidget->addTab(page,name);
-    tabWidget->setTabToolTip(index, fileName);
+    tabWidget->setTabToolTip(index, QDir::toNativeSeparators(fileName));
     tabWidget->setCurrentWidget(currentTextEdit);
     setCurrentWindowTitle(fileName);
     currentTextEdit->initCompleted();
@@ -547,9 +551,9 @@ void TrayMemoWindow::showAboutMessage()
 //    about->exec();
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.84<br>"
+                                "Version 0.85<br>"
                                 "Author: Markus Nolvi<br>"
-                                "E-mail: markus.nolvi@gmail.com"));
+                                "E-mail: dowc79@gmail.com"));
 }
 
 void TrayMemoWindow::showCurrentShortcuts()

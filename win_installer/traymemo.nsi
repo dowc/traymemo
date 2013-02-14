@@ -1,6 +1,6 @@
 SetCompressor lzma
 Name "TrayMemo"
-OutFile "traymemo-0.84-setup.exe"
+OutFile "traymemo-0.85-setup.exe"
 InstallDir $PROGRAMFILES\TrayMemo
 Icon "..\src\images\traymemo.ico"
 LicenseData "..\COPYING"
@@ -34,9 +34,9 @@ IfFileExists "$INSTDIR\traymemo.exe" Ask_Question
 Goto INSTALL
 
 Ask_Question:
-MessageBox MB_YESNO "You have this program \
-already installed. You have to remove \
-it first. Uninstall now?" \
+MessageBox MB_YESNO "Traymemo is already \
+installed on your computer. It needs to be \
+removed first. Run uninstaller now?" \
 IDYES UNINSTALL IDNO ABORT
 
 ABORT:
