@@ -60,8 +60,8 @@ private slots:
 private:
     void readTextFromFile(QFile &file);
     void createTrayIcon();
-    void createNewTab(QString fileName);
-    void createNewFile(QString fileName);
+    void createNewTab(QString fileName, bool suppressErrors);
+    void createNewFile(QString fileName, bool suppressErrors);
     void openFile(QString fileName);
     QString stripPathFromFileName(QString fileName);
     bool showUnsavedDialog(QString fileName);

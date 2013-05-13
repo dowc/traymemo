@@ -181,8 +181,9 @@ void TrayMemoWindow::restorePreviousSessionTabs()
     }
     settings.endGroup();
 
+    // If there are errors like files missing, we suppress errors here
     foreach (QString value, map.values())
-        createNewTab(value);
+        createNewTab(value, true);
 }
 
 void TrayMemoWindow::saveSessionTabs() const
@@ -246,7 +247,7 @@ void TrayMemoWindow::openFileSaveDialog()
 //        fileName = QString("untitled%1.txt").arg(proposedFileNameNumbers);
 //        ++proposedFileNameNumbers;
     }
-    createNewTab(fileName);
+    createNewTab(fileName, false);
 }
 
 void TrayMemoWindow::openFileOpenDialog()
@@ -256,7 +257,7 @@ void TrayMemoWindow::openFileOpenDialog()
         return;
 
     foreach(QString fileName, fileNames)
-        createNewTab(fileName);
+        createNewTab(fileName, false);
 }
 
 void TrayMemoWindow::saveTextToFile()
@@ -342,14 +343,17 @@ void TrayMemoWindow::readTextFromFile(QFile &file)
 #endif
 }
 
-void TrayMemoWindow::createNewFile(QString fileName)
+void TrayMemoWindow::createNewFile(QString fileName, bool suppressErrors)
 {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadWrite | QIODevice::Text))
     {
-        QErrorMessage errorMessage;
-        errorMessage.showMessage("Specified file could not be created!");
-        errorMessage.exec();
+        if (!suppressErrors)
+        {
+            QErrorMessage errorMessage;
+            errorMessage.showMessage("Specified file could not be created!");
+            errorMessage.exec();
+        }
     }    
 }
 
@@ -378,7 +382,7 @@ void TrayMemoWindow::updateAsterisk()
     setCurrentWindowTitle(fileName);
 }
 
-void TrayMemoWindow::createNewTab(QString fileName)
+void TrayMemoWindow::createNewTab(QString fileName, bool suppressErrors)
 {
     //Check if selected file is already opened
     int count = tabWidget->count();
@@ -399,7 +403,7 @@ void TrayMemoWindow::createNewTab(QString fileName)
     if(file.exists())
         openFile(fileName);
     else
-        createNewFile(fileName);
+        createNewFile(fileName, suppressErrors);
 
     QString name = stripPathFromFileName(fileName);
     int index = tabWidget->addTab(page,name);
@@ -544,14 +548,14 @@ void TrayMemoWindow::showAboutMessage()
 //    QMessageBox *about = new QMessageBox(this);
 //    about->setWindowTitle(tr("About Traymemo"));
 //    about->setText(tr("<b>TrayMemo</b><br>"
-//                      "Version 0.84<br>"
+//                      "Version 0.86<br>"
 //                      "Author: Markus Nolvi<br>"
 //                      "E-mail: markus.nolvi@gmail.com"));
 //    about->setDefaultButton(QMessageBox::Ok);
 //    about->exec();
     QMessageBox::about(this, tr("About Traymemo"),
                              tr("<b>TrayMemo</b><br>"
-                                "Version 0.85<br>"
+                                "Version 0.86<br>"
                                 "Author: Markus Nolvi<br>"
                                 "E-mail: dowc79@gmail.com"));
 }

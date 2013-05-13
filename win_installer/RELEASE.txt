@@ -1,3 +1,7 @@
+Version 0.86 - 14/05/2013
+===========================
+- Suppressed error messages when traymemo is being opened and it tries to restore files from recent session
+
 Version 0.85 - 15/02/2013
 ===========================
 - Fixed issue with newly created tab not being saved to control state
