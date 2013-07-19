@@ -21,6 +21,9 @@
 #ifndef TRAYMEMOWINDOW_H
 #define TRAYMEMOWINDOW_H
 
+#include <traymemotab.h>
+#include <textfinder.h>
+
 #include <QtGui>
 #include <QSystemTrayIcon>
 #include <QDialog>
@@ -28,7 +31,6 @@
 #include <QxtGlobalShortcut>
 #include <QtDeclarative/QDeclarativeView>
 #include <QTabWidget>
-#include <traymemotab.h>
 
 class TrayMemoWindow : public QDialog
 {
@@ -40,6 +42,7 @@ public:
 
 public slots:
     void commitData(QSessionManager &manager);
+    QWidget* getCurrentTextEdit() const;
 
 private slots:    
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -80,7 +83,7 @@ private:
     TrayMemoTab *currentTextEdit;
     QxtGlobalShortcut *shortCutShowHide;
     QStringList disallowedShortcuts;
-
+    TextFinder *textFinderWidget;
 };
 
 #endif // TRAYMEMOWINDOW_H

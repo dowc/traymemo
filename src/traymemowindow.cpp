@@ -45,16 +45,18 @@ TrayMemoWindow::TrayMemoWindow()
     setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::Widget);
     setFocusPolicy(Qt::NoFocus);
 
-    disallowedShortcuts << "Ctrl+T" << "Ctrl+O" << "Ctrl+S" << "Ctrl+W" << "Ctrl+Q" << "Ctrl+Tab" << "Ctrl+Shift+Tab";
+    disallowedShortcuts << "Ctrl+T" << "Ctrl+O" << "Ctrl+S" << "Ctrl+W" << "Ctrl+Q" << "Ctrl+Tab" << "Ctrl+Shift+Tab" << "Ctrl+F" <<"F3";
 
     QShortcut *shortCutCreateNew = new QShortcut(QKeySequence("Ctrl+T"), this);
+    QShortcut *shortCutFindBox = new QShortcut(QKeySequence("Ctrl+F"), this);
+    QShortcut *shortCutFindNext = new QShortcut(QKeySequence("F3"), this);
     QShortcut *shortCutSaveText = new QShortcut(QKeySequence("Ctrl+S"), this);
     QShortcut *shortCutOpenExisting = new QShortcut(QKeySequence("Ctrl+O"), this);
     QShortcut *shortCutCloseApp = new QShortcut(QKeySequence("Ctrl+Q"), this);
     QShortcut *shortCutCloseCurrentTab = new QShortcut(QKeySequence("Ctrl+W"), this);
     QShortcut *shortCutCycleToNextTab = new QShortcut(QKeySequence("Ctrl+Tab"), this);
     QShortcut *shortCutCycleToPreviousTab = new QShortcut(QKeySequence("Ctrl+Shift+Tab"), this);    
-    QObject::connect(shortCutCreateNew, SIGNAL(activated()), this, SLOT(openFileSaveDialog()));
+    QObject::connect(shortCutCreateNew, SIGNAL(activated()), this, SLOT(openFileSaveDialog()));    
     QObject::connect(shortCutSaveText, SIGNAL(activated()), this, SLOT(saveTextToFile()));
     QObject::connect(shortCutOpenExisting, SIGNAL(activated()), this, SLOT(openFileOpenDialog()));
     QObject::connect(shortCutCloseCurrentTab, SIGNAL(activated()), this, SLOT(closeCurrentTab()));
@@ -68,8 +70,14 @@ TrayMemoWindow::TrayMemoWindow()
     QObject::connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(changeCurrentTab(int)));
     setFocusProxy(tabWidget);
 
+    textFinderWidget = new TextFinder(this);
+    textFinderWidget->setVisible(false);
+    QObject::connect(shortCutFindBox, SIGNAL(activated()), textFinderWidget, SLOT(showHideFind()));
+    QObject::connect(shortCutFindNext, SIGNAL(activated()), textFinderWidget, SLOT(findNextOccurrence()));
+
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->addWidget(tabWidget);
+    mainLayout->addWidget(textFinderWidget);
+    mainLayout->addWidget(tabWidget);    
     setLayout(mainLayout);
 
     createTrayIcon();
@@ -114,10 +122,10 @@ void TrayMemoWindow::closeApplication()
     QMessageBox msgBox;
     msgBox.setWindowFlags(Qt::WindowStaysOnTopHint);
     msgBox.setText("Do you really want to quit?");
-    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-    msgBox.setDefaultButton(QMessageBox::Ok);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
     int result = msgBox.exec();
-    if (result == QMessageBox::Ok)
+    if (result == QMessageBox::Yes)
     {
         queryForUnsavedDocuments();
         saveAppSettings();
@@ -139,14 +147,22 @@ void TrayMemoWindow::queryForUnsavedDocuments()
         QMessageBox msgBox;
         msgBox.setWindowFlags(Qt::WindowStaysOnTopHint);
         msgBox.setText("You have unsaved documents. Do you want to save them before quitting?");
-        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        msgBox.setDefaultButton(QMessageBox::Ok);
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::Yes);
         int result = msgBox.exec();
-        if (result == QMessageBox::Ok)
+        if (result == QMessageBox::Yes)
         {
             SaveUnsavedDocuments();
         }
     }
+}
+
+QWidget* TrayMemoWindow::getCurrentTextEdit() const
+{
+    if (currentTextEdit)
+        return currentTextEdit;
+    else
+        return NULL;
 }
 
 void TrayMemoWindow::changeCurrentTab(int index)
@@ -437,6 +453,7 @@ void TrayMemoWindow::closeCurrentTab()
 
         if (closingCancelled)
             return;
+
         tabWidget->removeTab(currentIndex);
     }
 }
@@ -557,7 +574,7 @@ void TrayMemoWindow::showAboutMessage()
                              tr("<b>TrayMemo</b><br>"
                                 "Version 0.86<br>"
                                 "Author: Markus Nolvi<br>"
-                                "E-mail: dowc79@gmail.com"));
+                                "E-mail: markus.nolvi@gmail.com"));
 }
 
 void TrayMemoWindow::showCurrentShortcuts()

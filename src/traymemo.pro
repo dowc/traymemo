@@ -29,11 +29,15 @@ TARGET = traymemo
 
 SOURCES += main.cpp \
     traymemowindow.cpp \
-    traymemotab.cpp
+    traymemotab.cpp \
+    textfinder.cpp \
+    searchhighlighter.cpp
 
 HEADERS += \
     traymemowindow.h \
-    traymemotab.h
+    traymemotab.h \
+    textfinder.h \
+    searchhighlighter.h
 
 RESOURCES += \
     traymemo.qrc
