@@ -1,3 +1,8 @@
+Version 0.87 - 19/07/2013
+===========================
+- Implemented experimental search & highlight string functionality
+- Fixed softkey options in some confirmation dialogs to be more reasonable
+
 Version 0.86 - 14/05/2013
 ===========================
 - Suppressed error messages when traymemo is being opened and it tries to restore files from recent session
